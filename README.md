@@ -4,6 +4,39 @@ Sweet R tricks
 
 Tips and tricks in R & RStudio. Gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place. I hope to update it regularly -- feel free to fork, add your own, and send a PR.
 
+I/O
+===
+
+### Making Saved Data Smaller
+
+Adding `compress = "xz"` to your `save()` function can make things much smaller:
+
+``` r
+library(congressbr)
+data('senate_nominal_votes')
+head(senate_nominal_votes)
+#> # A tibble: 6 x 9
+#>   vote_date           bill_id bill    legislature senator_id senator_name 
+#>   <dttm>              <chr>   <chr>   <chr>       <chr>      <chr>        
+#> 1 1991-06-06 00:00:00 19615   PLC:19~ 49          31         Guilherme Pa~
+#> 2 1991-06-06 00:00:00 19615   PLC:19~ 49          47         Jose Sarney  
+#> 3 1991-06-06 00:00:00 19615   PLC:19~ 49          82         Amazonino Me~
+#> 4 1991-06-06 00:00:00 19615   PLC:19~ 49          33         Humberto Luc~
+#> 5 1991-06-06 00:00:00 19615   PLC:19~ 49          79         Valmir Campe~
+#> 6 1991-06-06 00:00:00 19615   PLC:19~ 49          84         Antonio Mariz
+#> # ... with 3 more variables: senator_vote <chr>, senator_party <chr>,
+#> #   senator_state <chr>
+save(list = ls(), file = "sen.Rda")
+save(list = ls(), file = "sen2.Rda", compress = "xz")
+
+file.info("sen.Rda")$size
+#> [1] 73485
+file.info("sen2.Rda")$size
+#> [1] 38408
+```
+
+[Source](https://twitter.com/ikashnitsky/status/973325892956184576)
+
 Tables
 ------
 
@@ -85,7 +118,7 @@ mtcars %>%
 #> ---------------------
 ```
 
-Also (I prefer this actually):
+Also, from the comments to the above tweet (I prefer this actually):
 
 ``` r
 library(dplyr)

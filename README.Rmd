@@ -13,6 +13,24 @@ knitr::opts_chunk$set(
 # Sweet R tricks
 Tips and tricks in R & RStudio. Gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place. I hope to update it regularly -- feel free to fork, add your own, and send a PR.
 
+# I/O
+
+### Making Saved Data Smaller
+Adding `compress = "xz"` to your `save()` function can make things much smaller:  
+
+```{r}
+library(congressbr)
+data('senate_nominal_votes')
+head(senate_nominal_votes)
+save(list = ls(), file = "sen.Rda")
+save(list = ls(), file = "sen2.Rda", compress = "xz")
+
+file.info("sen.Rda")$size
+file.info("sen2.Rda")$size
+```
+
+[Source](https://twitter.com/ikashnitsky/status/973325892956184576)
+
 ## Tables
 
 ### Totals columns
@@ -32,7 +50,7 @@ mtcars %>%
   pandoc.table()
 ```
 
-Also (I prefer this actually): 
+Also, from the comments to the above tweet (I prefer this actually): 
 ```{r}
 library(dplyr)
 library(janitor)
