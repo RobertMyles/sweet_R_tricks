@@ -1,0 +1,44 @@
+---
+output: github_document
+---
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# Sweet R tricks
+Tips and tricks in R & RStudio. Gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place. I hope to update it regularly -- feel free to fork, add your own, and send a PR.
+
+## Tables
+
+### Totals columns
+[source](https://twitter.com/andrewheiss/status/973325552596664321?s=03)
+
+```{r}
+library(dplyr)
+library(stringr)
+library(pander)
+mtcars %>% 
+  mutate(cars = row.names(.),
+         cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
+  count(cars, am) %>% 
+  bind_rows(summarise_at(., vars(n), funs(sum)) %>%
+              mutate(cars = "**Total**")
+  ) %>% 
+  pandoc.table()
+```
+
+Also (I prefer this actually): 
+```{r}
+library(dplyr)
+library(janitor)
+mtcars %>% 
+  mutate(cars = row.names(.),
+         cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
+  count(cars, am) %>% 
+  adorn_totals()
+```
