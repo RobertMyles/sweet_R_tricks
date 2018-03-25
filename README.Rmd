@@ -60,3 +60,13 @@ mtcars %>%
   count(cars, am) %>% 
   adorn_totals()
 ```
+
+## RStudio tricks
+
+`ts` plus Shift and Tab gives you a nice data-stamped code section:
+```{r}
+# Sun Mar 25 14:36:54 2018 ------------------------------
+```
+
+[Source](https://community.rstudio.com/t/rstudio-hidden-gems/4974)
+

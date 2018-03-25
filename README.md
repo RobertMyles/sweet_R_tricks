@@ -18,12 +18,12 @@ head(senate_nominal_votes)
 #> # A tibble: 6 x 9
 #>   vote_date           bill_id bill    legislature senator_id senator_name 
 #>   <dttm>              <chr>   <chr>   <chr>       <chr>      <chr>        
-#> 1 1991-06-06 00:00:00 19615   PLC:19~ 49          31         Guilherme Pa~
-#> 2 1991-06-06 00:00:00 19615   PLC:19~ 49          47         Jose Sarney  
-#> 3 1991-06-06 00:00:00 19615   PLC:19~ 49          82         Amazonino Me~
-#> 4 1991-06-06 00:00:00 19615   PLC:19~ 49          33         Humberto Luc~
-#> 5 1991-06-06 00:00:00 19615   PLC:19~ 49          79         Valmir Campe~
-#> 6 1991-06-06 00:00:00 19615   PLC:19~ 49          84         Antonio Mariz
+#> 1 1991-06-06 00:00:00 19615   PLC:19… 49          31         Guilherme Pa…
+#> 2 1991-06-06 00:00:00 19615   PLC:19… 49          47         Jose Sarney  
+#> 3 1991-06-06 00:00:00 19615   PLC:19… 49          82         Amazonino Me…
+#> 4 1991-06-06 00:00:00 19615   PLC:19… 49          33         Humberto Luc…
+#> 5 1991-06-06 00:00:00 19615   PLC:19… 49          79         Valmir Campe…
+#> 6 1991-06-06 00:00:00 19615   PLC:19… 49          84         Antonio Mariz
 #> # ... with 3 more variables: senator_vote <chr>, senator_party <chr>,
 #> #   senator_state <chr>
 save(list = ls(), file = "sen.Rda")
@@ -123,23 +123,46 @@ Also, from the comments to the above tweet (I prefer this actually):
 ``` r
 library(dplyr)
 library(janitor)
+#> Warning: package 'janitor' was built under R version 3.4.4
 mtcars %>% 
   mutate(cars = row.names(.),
          cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
   count(cars, am) %>% 
   adorn_totals()
-#> # A tibble: 24 x 4
-#>    cars        am     n Total
-#>    <chr>    <dbl> <int> <dbl>
-#>  1 AMC         0.     1    1.
-#>  2 Cadillac    0.     1    1.
-#>  3 Camaro      0.     1    1.
-#>  4 Chrysler    0.     1    1.
-#>  5 Datsun      1.     1    2.
-#>  6 Dodge       0.     1    1.
-#>  7 Duster      0.     1    1.
-#>  8 Ferrari     1.     1    2.
-#>  9 Fiat        1.     2    3.
-#> 10 Ford        1.     1    2.
-#> # ... with 14 more rows
+#>      cars am  n
+#>       AMC  0  1
+#>  Cadillac  0  1
+#>    Camaro  0  1
+#>  Chrysler  0  1
+#>    Datsun  1  1
+#>     Dodge  0  1
+#>    Duster  0  1
+#>   Ferrari  1  1
+#>      Fiat  1  2
+#>      Ford  1  1
+#>     Honda  1  1
+#>    Hornet  0  2
+#>   Lincoln  0  1
+#>     Lotus  1  1
+#>  Maserati  1  1
+#>     Mazda  1  2
+#>      Merc  0  7
+#>   Pontiac  0  1
+#>   Porsche  1  1
+#>    Toyota  0  1
+#>    Toyota  1  1
+#>   Valiant  0  1
+#>     Volvo  1  1
+#>     Total 11 32
 ```
+
+RStudio tricks
+--------------
+
+`ts` plus Shift and Tab gives you a nice data-stamped code section:
+
+``` r
+# Sun Mar 25 14:36:54 2018 ------------------------------
+```
+
+[Source](https://community.rstudio.com/t/rstudio-hidden-gems/4974)
