@@ -155,7 +155,9 @@ mtcars %>%
 You can use curly braces (`{}`) to avail of data wrangling in the middle
 of your ggplot2 code, as
 [Alistair](https://stackoverflow.com/users/4497050/alistaire) once
-explained to me:
+explained to me. I can’t find the code I was working on at the time, but
+the idea was to make some slopegraphs. This is a toy/ugly little
+example:
 
 ``` r
 library(dplyr); library(ggplot2)
@@ -164,7 +166,8 @@ df <- tibble(
   area = rep(c("Health", "Education"), 6),
   sub_area = rep(c("Staff", "Projects", "Activities"), 4),
   year = c(rep(2016, 6), rep(2017, 6)),
-  value = rep(c(15000, 12000, 18000), 4)
+  value = c(15000, 12000, 18000, 24000, 14000, 12000, 13000, 16000, 11000, 
+            8000, 15000, 19000)
 ) %>% arrange(area)
 
 df %>% filter(area == "Health") %>% {
@@ -177,8 +180,9 @@ df %>% filter(area == "Health") %>% {
         geom_text(data = dplyr::filter(., 
         year == 2016 & sub_area == "Activities"),    # and here
                   aes(x = as.factor(year), y = value, 
-                      color = sub_area, label = area), size = 6, 
-                      hjust = 1)
+                      color = sub_area, label = sub_area), size = 6, 
+                      hjust = 1.2) +
+    xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
 }
 ```
 
@@ -207,3 +211,13 @@ ggplot(df, aes(x = x, y = y)) +
 
 ![](README-unnamed-chunk-6-1.png)<!-- -->
 [Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
+
+## RStudio tricks
+
+`ts` plus Shift and Tab gives you a nice data-stamped code section:
+
+``` r
+# Sun Mar 25 14:36:54 2018 ------------------------------
+```
+
+[Source](https://community.rstudio.com/t/rstudio-hidden-gems/4974)
