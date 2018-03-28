@@ -115,6 +115,22 @@ ggplot(df, aes(x = x, y = y)) +
 ```
 [Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
 
+## RMarkdown tricks
+
+
+### R <--> Python
+Recently it's been noticed by some [sharp]() observers that you can run Python and R in the same RMarkdown document and that the objects from one are available to the other.
+
+### JavaScript
+
+If you use `results = 'asis'` in the head of your code chunk, i.e. ` ```{r results = 'asis'} `, RMarkdown will keep the result of the chunk 'alive', so to speak, in the document, for you to use. A good example of this is with JavaScript, which you can use to make a nifty [d3]() plot. A few bloggers have noted this, although I think the first was a blogger named [Alice](https://towardsdatascience.com/getting-r-and-d3-js-to-play-nicely-in-r-markdown-270e302a52d3). Here I'll use the example given by [Nick Strayer](http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/). First we save our data to the JSON format:     
+
+```{}
+
+```
+
+We can then use it to draw a d3 graph: 
+
 
 ## RStudio tricks
 
