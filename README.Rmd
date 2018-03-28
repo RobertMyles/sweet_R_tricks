@@ -6,12 +6,15 @@ output: github_document
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.path = "README-"
+  fig.path = "README-",
+  cache = TRUE,
+  message=FALSE, 
+  warning=FALSE
 )
 ```
 
 # Sweet R tricks
-Tips and tricks in R & RStudio, gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place. I hope to update it regularly -- feel free to fork, add your own, and send a PR.
+Tips and tricks in R & RStudio, gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place. I hope to update it regularly -- feel free to fork, add your own, and send a PR. I've left the `library()` calls in every chunk, in case you want to copy and paste some code.  
 
 # I/O
 
@@ -31,7 +34,134 @@ file.info("sen2.Rda")$size
 
 [Source](https://twitter.com/ikashnitsky/status/973325892956184576)
 
+## Packages
+
+### Loading more than one at the same time
+`library()` or `require()` only load one package at a time, but...
+
+```{r eval = FALSE}
+
+packages <- c("dplyr", "ggplot2", "rstan", "readr")
+
+lapply(packages, library, character.only = TRUE)
+
+```
+
+This code loads as many packages as you put in `packages`. They need to be installed first, of course!  
+
+### Saving and re-installing old packages on a new version of R  
+
+```{r eval = FALSE}
+old.packages <- list.files("/Library/Frameworks/R.framework/Versions/3.2/Resources/library")
+
+# Install packages in the previous version. 
+
+# For each package p in previous version...
+    for (p in old.packages) {
+      # ... Only if p is not already installed
+      if (!(p %in% installed.packages()[,"Package"])) {
+        # Install p 
+        install.packages(p) 
+      }
+    }
+```
 ## Tables
+
+## Speed
+
+First off, an informative [SO discussion](https://stackoverflow.com/questions/2908822/speed-up-the-loop-operation-in-r) on the topic. Take-away: use specialized libraries (such as `data.table` and `Rccp`) if you *really* need speed.  
+
+### For Loops
+*Sometimes* `for()` loops may be necessary in R. They get a bad reputation, but it's not totally deserved (and the `apply()` family of functions don't necessarily speed things up, they're just wrappers for `for()` loops). This is old news in R, so let's dig out an old [bookmark of mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html) on the subject, by Utkarsh Upadhyay. (From 2012!! Wow. [Another interesting article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the subject, by Noam Ross, led me to it.) 
+
+
+```{r}
+library(dplyr)
+
+f1 <- function (n) {
+    l <- list()
+    for(i in 1:n) {
+        l <- append(l, i)
+    }
+    return(l)
+}
+
+f2 <- function (n) {
+    l <- list()
+    for(i in 1:n) {
+        l[[length(l) + 1]] <- i
+    }
+    return(l)
+}
+
+f3 <- function (n) {
+    l <- vector("list", n)  ## pre-allocate the size
+    for(i in 1:n) {
+        l[[i]] <- i
+    }
+    return(l)
+}
+
+
+warm.up <- function(f, n, times) {
+    system.time(sapply(1:times, function (i) f(n)), gcFirst = T)
+}
+
+run.all <- function (reps = 10) {
+    timesSeq <- seq(from = 10, to = 10000, by = 100)
+
+    message("Running f1 ...")
+    f1.prof <- sapply(timesSeq, function (arg) warm.up(f1, arg, reps)[1] / reps)
+
+    message("Running f2 ...")
+    f2.prof <- sapply(timesSeq, function (arg) warm.up(f2, arg, reps)[1] / reps)
+
+    message("Running f3 ...")
+    f3.prof <- sapply(timesSeq, function (arg) warm.up(f3, arg, reps)[1] / reps)
+
+    return(tibble(
+                timesSeq  =  timesSeq,
+                f1.prof = f1.prof,
+                f2.prof = f2.prof,
+                f3.prof = f3.prof
+    ))
+}
+
+x <- run.all()
+
+library(ggplot2)
+ggplot(x, aes(x = timesSeq, group = 1)) +
+  geom_line(aes(y = f1.prof), colour = "#ec0b43") +
+  geom_line(aes(y = f2.prof), colour = "#58355e") +
+  geom_line(aes(y = f3.prof), colour = "#7ae7c7") +
+  ylab(NULL) + theme_minimal() + xlab("Sequence") +
+  annotate("label", x = 7500, y = 0.4, label = "f1.prof") 
+
+```
+
+### Parentheses & Brackets
+
+You might be surprised to find out that using extra brackets and parentheses can slow your code down. To wit:  
+
+```{r}
+library(tictoc)
+
+x <- 1:10
+
+tic()
+if(any(x > 5)) print("hey!")
+toc()
+
+tic()
+if(any(x > 5)) {
+  print("hey!")
+}
+toc()
+
+
+```
+
+I've seen this in a few places, but the most recent I remember was from [Colin Fay](https://twitter.com/_ColinFay/status/946714488220389377) on Twitter (Colin's a fountain of little R tips). 
 
 ### Totals columns
 Nice totals column, from Andrew Heiss:
