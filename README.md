@@ -1,15 +1,18 @@
 
-Sweet R tricks
-==============
+# Sweet R tricks
 
-Tips and tricks in R & RStudio. Gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place. I hope to update it regularly -- feel free to fork, add your own, and send a PR.
+Tips and tricks in R & RStudio. Gathered from wherever I see them.
+Mainly a repo for me to remember cool little R tips I’ve seen around the
+place. I hope to update it regularly – feel free to fork, add your own,
+and send a PR.
 
-I/O
-===
+# I/O
 
 ### Making Saved Data Smaller
 
-Adding `compress = "xz"` to your `save()` function can make things much smaller:
+Adding `compress = "xz"` to your `save()` function can make things much
+smaller. *Very* useful tip from [Ilya
+Kasnitsky](https://ikashnitsky.github.io/):
 
 ``` r
 library(congressbr)
@@ -37,10 +40,11 @@ file.info("sen2.Rda")$size
 
 [Source](https://twitter.com/ikashnitsky/status/973325892956184576)
 
-Tables
-------
+## Tables
 
 ### Totals columns
+
+Nice totals column, from Andrew Heiss:
 
 [source](https://twitter.com/andrewheiss/status/973325552596664321?s=03)
 
@@ -118,7 +122,9 @@ mtcars %>%
 #> ---------------------
 ```
 
-Also, from the comments to the above tweet (I prefer this actually):
+Also, from the comments to the above tweet, by Sam Firke, the author the
+[janitor](https://github.com/sfirke/janitor) package (I prefer this
+actually):
 
 ``` r
 library(dplyr)
@@ -143,3 +149,61 @@ mtcars %>%
 #> 10 Ford        1.     1    2.
 #> # ... with 14 more rows
 ```
+
+# ggplot2
+
+You can use curly braces (`{}`) to avail of data wrangling in the middle
+of your ggplot2 code, as
+[Alistair](https://stackoverflow.com/users/4497050/alistaire) once
+explained to me:
+
+``` r
+library(dplyr); library(ggplot2)
+
+df <- tibble(
+  area = rep(c("Health", "Education"), 6),
+  sub_area = rep(c("Staff", "Projects", "Activities"), 4),
+  year = c(rep(2016, 6), rep(2017, 6)),
+  value = rep(c(15000, 12000, 18000), 4)
+) %>% arrange(area)
+
+df %>% filter(area == "Health") %>% {
+    ggplot(.) +    # add . to specify to insert results here
+        geom_line(aes(x = as.factor(year), y = value, 
+                      group = sub_area, color = sub_area), size = 2) + 
+        geom_point(aes(x = as.factor(year), y = value, 
+                       group = sub_area, color = sub_area), size = 2) +
+        theme_minimal(base_size = 18) + 
+        geom_text(data = dplyr::filter(., 
+        year == 2016 & sub_area == "Activities"),    # and here
+                  aes(x = as.factor(year), y = value, 
+                      color = sub_area, label = area), size = 6, 
+                      hjust = 1)
+}
+```
+
+![](README-unnamed-chunk-5-1.png)<!-- -->
+[Source](https://stackoverflow.com/questions/44007998/subset-filter-in-dplyr-chain-with-ggplot2)
+
+Neat little trick from James Goldie – you can also use
+`dplyr::case_when()` to highlight certain points on a plot:
+
+``` r
+library(ggplot2); library(ggrepel); library(dplyr)
+
+df <- tibble(
+  x = 1:10,
+  y = rnorm(10),
+  name = c("Apple", "Banana", "Kiwi", "Orange", "Watermelon",
+           "Grapes", "Pear", "Canteloupe", "Tomato", "Satsuma")) %>%
+  mutate(name_poor = case_when(
+    y < 0 ~ name,
+    TRUE ~ ""))
+
+ggplot(df, aes(x = x, y = y)) +
+  geom_point(size = 3) +
+  geom_text_repel(aes(label = name_poor), point.padding = 2)
+```
+
+![](README-unnamed-chunk-6-1.png)<!-- -->
+[Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
