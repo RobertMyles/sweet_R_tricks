@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 ```
 
 # Sweet R tricks
-Tips and tricks in R & RStudio, gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place. I hope to update it regularly -- feel free to fork, add your own, and send a PR. I've left the `library()` calls in every chunk, in case you want to copy and paste some code.  
+Tips and tricks in R & RStudio, gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place :metal:. I hope to update it regularly -- feel free to fork, add your own, and send a PR. I've left the `library()` calls in every chunk, in case you want to copy and paste some code. Long code chunks are hidden for readability. Just click on the little arrow and you can see the code. **This is clearly a work-in-progress-that-might-never-finish, so any corrections/tips/pull requests/additions are very welcome!**
 
 # I/O
 
@@ -51,8 +51,12 @@ This code loads as many packages as you put in `packages`. They need to be insta
 
 ### Saving and re-installing old packages on a new version of R  
 
+There are a few ways to do this, but this works. You just need to put in your version of R:  
+<details>
+<summary>Click to see code</summary>
 ```{r eval = FALSE}
-old.packages <- list.files("/Library/Frameworks/R.framework/Versions/3.2/Resources/library")
+version <- "3.3"  #just an example
+old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", version, "/Resources/library"))
 
 # Install packages in the previous version. 
 
@@ -65,6 +69,7 @@ old.packages <- list.files("/Library/Frameworks/R.framework/Versions/3.2/Resourc
       }
     }
 ```
+</details>
 ## Tables
 
 ## Speed
@@ -74,7 +79,8 @@ First off, an informative [SO discussion](https://stackoverflow.com/questions/29
 ### For Loops
 *Sometimes* `for()` loops may be necessary in R. They get a bad reputation, but it's not totally deserved (and the `apply()` family of functions don't necessarily speed things up, they're just wrappers for `for()` loops). This is old news in R, so let's dig out an old [bookmark of mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html) on the subject, by Utkarsh Upadhyay. (From 2012!! Wow. [Another interesting article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the subject, by Noam Ross, led me to it.) 
 
-
+<details>
+<summary>Click to see code</summary>
 ```{r}
 library(dplyr)
 
@@ -139,6 +145,8 @@ ggplot(x, aes(x = timesSeq, group = 1)) +
 
 ```
 
+</details>
+
 ### Parentheses & Brackets
 
 You might be surprised to find out that using extra brackets and parentheses can slow your code down. To wit:  
@@ -161,13 +169,14 @@ toc()
 
 ```
 
-I've seen this in a few places, but the most recent I remember was from [Colin Fay](https://twitter.com/_ColinFay/status/946714488220389377) on Twitter (Colin's a fountain of little R tips). 
+I've seen this in a few places, but the most recent I remember was from [Colin Fay](https://twitter.com/_ColinFay/status/946714488220389377) on Twitter (Colin's a fountain of little R tips, particularly for purrr). 
 
 ### Totals columns
 Nice totals column, from Andrew Heiss:
 
 [source](https://twitter.com/andrewheiss/status/973325552596664321?s=03)
-
+<details>
+<summary>Click to see code</summary>
 ```{r}
 library(dplyr)
 library(stringr)
@@ -192,11 +201,13 @@ mtcars %>%
   count(cars, am) %>% 
   adorn_totals()
 ```
+</details>
 
 # ggplot2
 
 You can use curly braces (`{}`) to avail of data wrangling in the middle of your ggplot2 code, as [Alistair](https://stackoverflow.com/users/4497050/alistaire) once explained to me. I can't find the code I was working on at the time, but the idea was to make some slopegraphs. This is a toy/ugly little example:   
-
+<details>
+<summary>Click to see code</summary>
 ```{r message = FALSE, warning = FALSE}
 library(dplyr); library(ggplot2)
 
@@ -224,9 +235,12 @@ df %>% filter(area == "Health") %>% {
 }
 ```
 [Source](https://stackoverflow.com/questions/44007998/subset-filter-in-dplyr-chain-with-ggplot2)  
+</details>
+  
 
 Neat little trick from James Goldie -- you can also use `dplyr::case_when()` to highlight certain points on a plot: 
-
+<details>
+<summary>Click to see code</summary>
 ```{r message = FALSE, warning = FALSE}
 library(ggplot2); library(ggrepel); library(dplyr)
 
@@ -244,23 +258,256 @@ ggplot(df, aes(x = x, y = y)) +
   geom_text_repel(aes(label = name_poor), point.padding = 2)
 ```
 [Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
-
+</details>
 ## RMarkdown tricks
 
 
 ### R <--> Python
 Recently it's been noticed by some [sharp]() observers that you can run Python and R in the same RMarkdown document and that the objects from one are available to the other.
 
+<div id="did-it-work" class="section level2">
 ### JavaScript
 
 If you use `results = 'asis'` in the head of your code chunk, i.e. ` ```{r results = 'asis'} `, RMarkdown will keep the result of the chunk 'alive', so to speak, in the document, for you to use. A good example of this is with JavaScript, which you can use to make a nifty [d3]() plot. A few bloggers have noted this, although I think the first was a blogger named [Alice](https://towardsdatascience.com/getting-r-and-d3-js-to-play-nicely-in-r-markdown-270e302a52d3). Here I'll use the example given by [Nick Strayer](http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/). First we save our data to the JSON format:     
+<details>
+<summary>Click to see code</summary>
+```{r results='asis'}
+library(dplyr)
+library(jsonlite)
 
-```{}
+send_df_to_js <- function(df){
+  cat(
+    paste(
+    '<script>
+      var data = ',toJSON(df),';
+    </script>'
+    , sep="")
+  )
+}
 
+#Generate some random x and y data to plot
+n <- 300
+random_data <- data_frame(x = runif(n)*10) %>% 
+  mutate(y = 0.5*x^3 - 1.3*x^2 + rnorm(n, mean = 0, sd = 80),
+         group = paste("group", sample(c(1,2,3), n, replace = T)))
+
+send_df_to_js(random_data)
 ```
 
-We can then use it to draw a d3 graph: 
+So far, so good -- the data is in our browser. In theory, now we can include a `js` code block. It's worth mentioning that, for me at least, this doesn't work perfectly (I'm probably doing something wrong). I had to actually include this code in the html of this README (you can see that it is doubled in the inspector of your browser or by looking at the page source).
 
+```{js}
+var point_vals = d3.select("#viz")
+  .append("p")
+  .attr("align", "center")
+  .text("Mouseover some data!");
+
+//Get how wide our page is in pixels so we can draw our plot in it
+var page_width = $("#javascript").width();
+console.log(page_width)
+// set the dimensions and margins of the graph
+var margin = 30,
+    width = page_width - 2*margin,
+    height = page_width*0.8 - 2*margin;
+    
+// Find max data values
+var x_extent = d3.extent(data, d => d.x);
+var y_extent = d3.extent(data, d => d.y);
+
+// Set the scales 
+var x = d3.scaleLinear()
+  .domain(x_extent)
+  .range([0, width]);
+  
+var y = d3.scaleLinear()
+  .domain(y_extent)
+  .range([height, 0]);
+
+//Set up our SVG element
+var svg = d3.select("#viz").append("svg")
+    .attr("width", width + 2*margin)
+    .attr("height", height + 2*margin)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin + "," + margin + ")");
+
+var bounce_select = d3.transition()
+    .duration(1000)
+    .ease(d3.easeElastic.period(0.4));
+    
+// Add the scatterplot
+svg.selectAll(".dots")
+    .data(data)
+  .enter().append("circle")
+    .attr("class", "dots")
+    .attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
+    .attr("fill-opacity", 0.3)
+    .attr("r", 5)
+    .attr("cx", d => x(d.x) )
+    .attr("cy", d => y(d.y) )
+    .on("mouseover", function(d){
+       d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
+       d3.select(this)
+        .transition(bounce_select)
+        .attr("r", 10);
+      
+       point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
+    });
+    
+// Draw the axes    
+// Add the X Axis
+svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+// Add the Y Axis
+svg.append("g")
+    .call(d3.axisLeft(y));
+```
+
+
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<div id="viz">
+
+</div>
+<pre class="js"><code>var point_vals = d3.select("#viz")
+.append("p")
+.attr("align", "center")
+.text("Mouseover some data!");
+
+//Get how wide our page is in pixels so we can draw our plot in it
+var page_width = $("#javascript").width();
+
+// set the dimensions and margins of the graph
+var margin = 30,
+width = page_width - 2*margin,
+height = page_width*0.8 - 2*margin;
+
+// Find max data values
+var x_extent = d3.extent(data, d => d.x);
+var y_extent = d3.extent(data, d => d.y);
+
+// Set the scales 
+var x = d3.scaleLinear()
+.domain(x_extent)
+.range([0, width]);
+
+var y = d3.scaleLinear()
+.domain(y_extent)
+.range([height, 0]);
+
+//Set up our SVG element
+var svg = d3.select("#viz").append("svg")
+.attr("width", width + 2*margin)
+.attr("height", height + 2*margin)
+.append("g")
+.attr("transform",
+      "translate(" + margin + "," + margin + ")");
+
+var bounce_select = d3.transition()
+.duration(1000)
+.ease(d3.easeElastic.period(0.4));
+
+// Add the scatterplot
+svg.selectAll(".dots")
+.data(data)
+.enter().append("circle")
+.attr("class", "dots")
+.attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
+.attr("fill-opacity", 0.3)
+.attr("r", 5)
+.attr("cx", d => x(d.x) )
+.attr("cy", d => y(d.y) )
+.on("mouseover", function(d){
+  d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
+  d3.select(this)
+  .transition(bounce_select)
+  .attr("r", 10);
+  
+  point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
+});
+
+// Draw the axes    
+// Add the X Axis
+svg.append("g")
+.attr("transform", "translate(0," + height + ")")
+.call(d3.axisBottom(x));
+
+// Add the Y Axis
+svg.append("g")
+.call(d3.axisLeft(y));</code></pre>
+  <script type="text/javascript">
+  var point_vals = d3.select("#viz")
+.append("p")
+.attr("align", "center")
+.text("Mouseover some data!");
+
+//Get how wide our page is in pixels so we can draw our plot in it
+var page_width = $("#javascript").width();
+
+// set the dimensions and margins of the graph
+var margin = 30,
+width = page_width - 2*margin,
+height = page_width*0.8 - 2*margin;
+
+// Find max data values
+var x_extent = d3.extent(data, d => d.x);
+var y_extent = d3.extent(data, d => d.y);
+
+// Set the scales 
+var x = d3.scaleLinear()
+.domain(x_extent)
+.range([0, width]);
+
+var y = d3.scaleLinear()
+.domain(y_extent)
+.range([height, 0]);
+
+//Set up our SVG element
+var svg = d3.select("#viz").append("svg")
+.attr("width", width + 2*margin)
+.attr("height", height + 2*margin)
+.append("g")
+.attr("transform",
+      "translate(" + margin + "," + margin + ")");
+
+var bounce_select = d3.transition()
+.duration(1000)
+.ease(d3.easeElastic.period(0.4));
+
+// Add the scatterplot
+svg.selectAll(".dots")
+.data(data)
+.enter().append("circle")
+.attr("class", "dots")
+.attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
+.attr("fill-opacity", 0.3)
+.attr("r", 5)
+.attr("cx", d => x(d.x) )
+.attr("cy", d => y(d.y) )
+.on("mouseover", function(d){
+  d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
+  d3.select(this)
+  .transition(bounce_select)
+  .attr("r", 10);
+  
+  point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
+});
+
+// Draw the axes    
+// Add the X Axis
+svg.append("g")
+.attr("transform", "translate(0," + height + ")")
+.call(d3.axisBottom(x));
+
+// Add the Y Axis
+svg.append("g")
+.call(d3.axisLeft(y));
+</script>
+</div>
+</details>
 
 ## RStudio tricks
 

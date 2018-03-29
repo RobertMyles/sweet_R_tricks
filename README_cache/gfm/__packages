@@ -1,0 +1,13 @@
+base
+RevoUtilsMath
+RevoUtils
+congressbr
+dplyr
+ggplot2
+tictoc
+stringr
+pander
+bindrcpp
+janitor
+ggrepel
+jsonlite
