@@ -11,3 +11,5 @@ bindrcpp
 janitor
 ggrepel
 jsonlite
+cowplot
+tibble

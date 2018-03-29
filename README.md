@@ -1,5 +1,5 @@
 
-# Sweet R tricks
+# Sweet R tricks :tophat::rabbit:
 
 Tips and tricks in R & RStudio, gathered from wherever I see them.
 Mainly a repo for me to remember cool little R tips I’ve seen around the
@@ -10,7 +10,7 @@ hidden for readability. Just click on the little arrow and you can see
 the code. **This is clearly a work-in-progress-that-might-never-finish,
 so any corrections/tips/pull requests/additions are very welcome\!**
 
-# I/O
+# I/O :minidisc:
 
 ### Making Saved Data Smaller
 
@@ -44,7 +44,7 @@ file.info("sen2.Rda")$size
 
 [Source](https://twitter.com/ikashnitsky/status/973325892956184576)
 
-## Packages
+## Packages :package:
 
 ### Loading more than one at the same time
 
@@ -87,127 +87,7 @@ old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", v
 
 </details>
 
-## Tables
-
-## Speed
-
-First off, an informative [SO
-discussion](https://stackoverflow.com/questions/2908822/speed-up-the-loop-operation-in-r)
-on the topic. Take-away: use specialized libraries (such as `data.table`
-and `Rccp`) if you *really* need speed.
-
-### For Loops
-
-*Sometimes* `for()` loops may be necessary in R. They get a bad
-reputation, but it’s not totally deserved (and the `apply()` family of
-functions don’t necessarily speed things up, they’re just wrappers for
-`for()` loops). This is old news in R, so let’s dig out an old [bookmark
-of
-mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html)
-on the subject, by Utkarsh Upadhyay. (From 2012\!\! Wow. [Another
-interesting
-article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the
-subject, by Noam Ross, led me to it.)
-
-<details>
-
-<summary>Click to see code</summary>
-
-``` r
-library(dplyr)
-
-f1 <- function (n) {
-    l <- list()
-    for(i in 1:n) {
-        l <- append(l, i)
-    }
-    return(l)
-}
-
-f2 <- function (n) {
-    l <- list()
-    for(i in 1:n) {
-        l[[length(l) + 1]] <- i
-    }
-    return(l)
-}
-
-f3 <- function (n) {
-    l <- vector("list", n)  ## pre-allocate the size
-    for(i in 1:n) {
-        l[[i]] <- i
-    }
-    return(l)
-}
-
-
-warm.up <- function(f, n, times) {
-    system.time(sapply(1:times, function (i) f(n)), gcFirst = T)
-}
-
-run.all <- function (reps = 10) {
-    timesSeq <- seq(from = 10, to = 10000, by = 100)
-
-    message("Running f1 ...")
-    f1.prof <- sapply(timesSeq, function (arg) warm.up(f1, arg, reps)[1] / reps)
-
-    message("Running f2 ...")
-    f2.prof <- sapply(timesSeq, function (arg) warm.up(f2, arg, reps)[1] / reps)
-
-    message("Running f3 ...")
-    f3.prof <- sapply(timesSeq, function (arg) warm.up(f3, arg, reps)[1] / reps)
-
-    return(tibble(
-                timesSeq  =  timesSeq,
-                f1.prof = f1.prof,
-                f2.prof = f2.prof,
-                f3.prof = f3.prof
-    ))
-}
-
-x <- run.all()
-
-library(ggplot2)
-ggplot(x, aes(x = timesSeq, group = 1)) +
-  geom_line(aes(y = f1.prof), colour = "#ec0b43") +
-  geom_line(aes(y = f2.prof), colour = "#58355e") +
-  geom_line(aes(y = f3.prof), colour = "#7ae7c7") +
-  ylab(NULL) + theme_minimal() + xlab("Sequence") +
-  annotate("label", x = 7500, y = 0.4, label = "f1.prof") 
-```
-
-![](README-unnamed-chunk-5-1.png)<!-- -->
-
-</details>
-
-### Parentheses & Brackets
-
-You might be surprised to find out that using extra brackets and
-parentheses can slow your code down. To wit:
-
-``` r
-library(tictoc)
-
-x <- 1:10
-
-tic()
-if(any(x > 5)) print("hey!")
-#> [1] "hey!"
-toc()
-#> 0 sec elapsed
-
-tic()
-if(any(x > 5)) {
-  print("hey!")
-}
-#> [1] "hey!"
-toc()
-#> 0.03 sec elapsed
-```
-
-I’ve seen this in a few places, but the most recent I remember was from
-[Colin Fay](https://twitter.com/_ColinFay/status/946714488220389377) on
-Twitter (Colin’s a fountain of little R tips, particularly for purrr).
+## Tables :page\_with\_curl:
 
 ### Totals columns
 
@@ -297,25 +177,156 @@ mtcars %>%
          cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
   count(cars, am) %>% 
   adorn_totals()
-#> # A tibble: 24 x 4
-#>    cars        am     n Total
-#>    <chr>    <dbl> <int> <dbl>
-#>  1 AMC         0.     1    1.
-#>  2 Cadillac    0.     1    1.
-#>  3 Camaro      0.     1    1.
-#>  4 Chrysler    0.     1    1.
-#>  5 Datsun      1.     1    2.
-#>  6 Dodge       0.     1    1.
-#>  7 Duster      0.     1    1.
-#>  8 Ferrari     1.     1    2.
-#>  9 Fiat        1.     2    3.
-#> 10 Ford        1.     1    2.
-#> # ... with 14 more rows
+#>      cars am  n
+#>       AMC  0  1
+#>  Cadillac  0  1
+#>    Camaro  0  1
+#>  Chrysler  0  1
+#>    Datsun  1  1
+#>     Dodge  0  1
+#>    Duster  0  1
+#>   Ferrari  1  1
+#>      Fiat  1  2
+#>      Ford  1  1
+#>     Honda  1  1
+#>    Hornet  0  2
+#>   Lincoln  0  1
+#>     Lotus  1  1
+#>  Maserati  1  1
+#>     Mazda  1  2
+#>      Merc  0  7
+#>   Pontiac  0  1
+#>   Porsche  1  1
+#>    Toyota  0  1
+#>    Toyota  1  1
+#>   Valiant  0  1
+#>     Volvo  1  1
+#>     Total 11 32
 ```
 
 </details>
 
-# ggplot2
+## Graphics :chart\_with\_upwards\_trend:
+
+### Colours :art:
+
+Want to see all the colours available in R? Here’s a ggplot2 version of
+[this great
+gist](https://github.com/hdugan/rColorTable/blob/master/rColorTable.R):  
+
+<details>
+
+<summary>Click to see code</summary>
+
+``` r
+# R colors minus 100 shades of grey
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(tibble)
+library(cowplot)
+
+# get 'data':
+colour <- tibble(colours = colors()) %>%
+  filter(!grepl("gray", colours),
+         !grepl("grey", colours)) %>%
+  mutate(general_colour = gsub("[0-9]", "", colours),
+         c1 = ifelse(grepl("1", colours), 1, 0),
+         c2 = ifelse(grepl("2", colours), 1, 0),
+         c3 = ifelse(grepl("3", colours), 1, 0),
+         c4 = ifelse(grepl("4", colours), 1, 0)) %>%
+  select(-1) %>%
+  group_by(general_colour) %>%
+  summarise_all(funs(sum)) %>%
+  ungroup() %>%
+  mutate(c1 = ifelse(grepl(1, c1), paste0(general_colour, c1), NA),
+         c2 = ifelse(grepl(1, c2), paste0(general_colour, "2"), NA),
+         c3 = ifelse(grepl(1, c3), paste0(general_colour, "3"), NA),
+         c4 = ifelse(grepl(1, c4), paste0(general_colour, "4"), NA),
+         c1 = ifelse(is.na(c1), general_colour, c1),
+         c2 = ifelse(is.na(c2), general_colour, c2),
+         c3 = ifelse(is.na(c3), general_colour, c3),
+         c4 = ifelse(is.na(c4), general_colour, c4))
+
+
+## create six plots:
+# Just the names, by setting alpha to 0:
+g0 <- ggplot(colour, aes(x = general_colour)) +
+  geom_bar(position = "stack", alpha = 0) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        axis.title.x = element_blank(), panel.grid = element_blank(),
+        axis.title.y = element_blank())
+
+g <- ggplot(colour, aes(x = general_colour, color = general_colour,
+                   fill = general_colour)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$general_colour) +
+  scale_fill_manual(values = colour$general_colour) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_1 <- ggplot(colour, aes(x = c1, color = c1,
+                        fill = c1)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c1) +
+  scale_fill_manual(values = colour$c1) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_2 <- ggplot(colour, aes(x = c2, color = c2,
+                        fill = c2)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c2) +
+  scale_fill_manual(values = colour$c2) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_3 <- ggplot(colour, aes(x = c3, color = c3,
+                        fill = c3)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c3) +
+  scale_fill_manual(values = colour$c3) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_4 <- ggplot(colour, aes(x = c4, color = c4,
+                        fill = c4)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c4) +
+  scale_fill_manual(values = colour$c4) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+# cowplot 'em all together:
+p <- plot_grid(g0, g, g_1, g_2, g_3, g_4, align = "h", ncol = 6,
+          rel_widths = c(.75, 1.05, 1.05, 1.05, 1.05, 1.05))
+title <- ggdraw() + draw_label("Colours range from the bare name to the 4th hue (if it exists)\n           i.e. azure             azure1           azure2             azure3              azure4  ")
+plot_grid(title, p, ncol = 1, rel_heights=c(0.05, 1))
+```
+
+![](README-unnamed-chunk-7-1.png)<!-- -->
+
+</details>
+
+### ggplot2 :bar\_chart:
 
 You can use curly braces (`{}`) to avail of data wrangling in the middle
 of your ggplot2 code, as
@@ -355,12 +366,12 @@ df %>% filter(area == "Health") %>% {
 }
 ```
 
-![](README-unnamed-chunk-9-1.png)<!-- -->
+![](README-unnamed-chunk-8-1.png)<!-- -->
 [Source](https://stackoverflow.com/questions/44007998/subset-filter-in-dplyr-chain-with-ggplot2)
 
 </details>
 
-Neat little trick from James Goldie – you can also use
+<br> Neat little trick from James Goldie – you can also use
 `dplyr::case_when()` to highlight certain points on a plot:
 
 <details>
@@ -384,14 +395,134 @@ ggplot(df, aes(x = x, y = y)) +
   geom_text_repel(aes(label = name_poor), point.padding = 2)
 ```
 
-![](README-unnamed-chunk-10-1.png)<!-- -->
+![](README-unnamed-chunk-9-1.png)<!-- -->
 [Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
 
 </details>
 
-## RMarkdown tricks
+## Speed :zap:
 
-### R \<–\> Python
+First off, an informative [SO
+discussion](https://stackoverflow.com/questions/2908822/speed-up-the-loop-operation-in-r)
+on the topic. Take-away: use specialized libraries (such as `data.table`
+and `Rccp`) if you *really* need speed.
+
+### For Loops
+
+*Sometimes* `for()` loops may be necessary in R. They get a bad
+reputation, but it’s not totally deserved (and the `apply()` family of
+functions don’t necessarily speed things up, they’re just wrappers for
+`for()` loops). This is old news in R, so let’s dig out an old [bookmark
+of
+mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html)
+on the subject, by Utkarsh Upadhyay. (From 2012\!\! Wow. [Another
+interesting
+article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the
+subject, by Noam Ross, led me to it.)
+
+<details>
+
+<summary>Click to see code</summary>
+
+``` r
+library(dplyr)
+
+f1 <- function (n) {
+    l <- list()
+    for(i in 1:n) {
+        l <- append(l, i)
+    }
+    return(l)
+}
+
+f2 <- function (n) {
+    l <- list()
+    for(i in 1:n) {
+        l[[length(l) + 1]] <- i
+    }
+    return(l)
+}
+
+f3 <- function (n) {
+    l <- vector("list", n)  ## pre-allocate the size
+    for(i in 1:n) {
+        l[[i]] <- i
+    }
+    return(l)
+}
+
+
+warm.up <- function(f, n, times) {
+    system.time(sapply(1:times, function (i) f(n)), gcFirst = T)
+}
+
+run.all <- function (reps = 10) {
+    timesSeq <- seq(from = 10, to = 10000, by = 100)
+
+    message("Running f1 ...")
+    f1.prof <- sapply(timesSeq, function (arg) warm.up(f1, arg, reps)[1] / reps)
+
+    message("Running f2 ...")
+    f2.prof <- sapply(timesSeq, function (arg) warm.up(f2, arg, reps)[1] / reps)
+
+    message("Running f3 ...")
+    f3.prof <- sapply(timesSeq, function (arg) warm.up(f3, arg, reps)[1] / reps)
+
+    return(tibble(
+                timesSeq  =  timesSeq,
+                f1.prof = f1.prof,
+                f2.prof = f2.prof,
+                f3.prof = f3.prof
+    ))
+}
+
+x <- run.all()
+
+library(ggplot2)
+ggplot(x, aes(x = timesSeq, group = 1)) +
+  geom_line(aes(y = f1.prof), colour = "#ec0b43") +
+  geom_line(aes(y = f2.prof), colour = "#58355e") +
+  geom_line(aes(y = f3.prof), colour = "#7ae7c7") +
+  ylab(NULL) + theme_minimal() + xlab("Sequence") +
+  annotate("label", x = 7500, y = 0.4, label = "f1.prof") 
+```
+
+![](README-unnamed-chunk-10-1.png)<!-- -->
+
+</details>
+
+### Parentheses & Brackets
+
+You might be surprised to find out that using extra brackets and
+parentheses can slow your code down. To wit:
+
+``` r
+library(tictoc)
+
+x <- 1:10
+
+tic()
+if(any(x > 5)) print("hey!")
+#> [1] "hey!"
+toc()
+#> 0 sec elapsed
+
+tic()
+if(any(x > 5)) {
+  print("hey!")
+}
+#> [1] "hey!"
+toc()
+#> 0.02 sec elapsed
+```
+
+I’ve seen this in a few places, but the most recent I remember was from
+[Colin Fay](https://twitter.com/_ColinFay/status/946714488220389377) on
+Twitter (Colin’s a fountain of little R tips, particularly for purrr).
+
+## RMarkdown tricks :scroll:
+
+### R \<–\> Python :snake:
 
 Recently it’s been noticed by some [sharp]() observers that you can run
 Python and R in the same RMarkdown document and that the objects from
@@ -446,9 +577,8 @@ send_df_to_js(random_data)
 So far, so good – the data is in our browser. In theory, now we can
 include a `js` code block. It’s worth mentioning that, for me at least,
 this doesn’t work perfectly (I’m probably doing something wrong). I had
-to actually include this code in the html of this README (you can see
-that it is doubled in the inspector of your browser or by looking at the
-page source).
+to actually include this code in the html of this README (hence the
+doubling of the code).
 
 ``` js
 var point_vals = d3.select("#viz")
@@ -669,7 +799,7 @@ svg.append("g")
 
 </details>
 
-## RStudio tricks
+## RStudio tricks :computer:
 
 `ts` plus Shift and Tab gives you a nice data-stamped code section:
 

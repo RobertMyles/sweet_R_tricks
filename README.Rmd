@@ -13,10 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Sweet R tricks
+# Sweet R tricks :tophat::rabbit:
 Tips and tricks in R & RStudio, gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place :metal:. I hope to update it regularly -- feel free to fork, add your own, and send a PR. I've left the `library()` calls in every chunk, in case you want to copy and paste some code. Long code chunks are hidden for readability. Just click on the little arrow and you can see the code. **This is clearly a work-in-progress-that-might-never-finish, so any corrections/tips/pull requests/additions are very welcome!**
 
-# I/O
+# I/O :minidisc:
 
 ### Making Saved Data Smaller
 Adding `compress = "xz"` to your `save()` function can make things much smaller. *Very* useful tip from [Ilya Kasnitsky](https://ikashnitsky.github.io/):
@@ -34,7 +34,7 @@ file.info("sen2.Rda")$size
 
 [Source](https://twitter.com/ikashnitsky/status/973325892956184576)
 
-## Packages
+## Packages :package:
 
 ### Loading more than one at the same time
 `library()` or `require()` only load one package at a time, but...
@@ -70,9 +70,212 @@ old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", v
     }
 ```
 </details>
-## Tables
+## Tables :page_with_curl:
 
-## Speed
+
+### Totals columns
+Nice totals column, from Andrew Heiss:
+
+[source](https://twitter.com/andrewheiss/status/973325552596664321?s=03)
+<details>
+<summary>Click to see code</summary>
+```{r}
+library(dplyr)
+library(stringr)
+library(pander)
+mtcars %>% 
+  mutate(cars = row.names(.),
+         cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
+  count(cars, am) %>% 
+  bind_rows(summarise_at(., vars(n), funs(sum)) %>%
+              mutate(cars = "**Total**")
+  ) %>% 
+  pandoc.table()
+```
+
+Also, from the comments to the above tweet, by Sam Firke, the author the [janitor](https://github.com/sfirke/janitor) package (I prefer this actually): 
+```{r}
+library(dplyr)
+library(janitor)
+mtcars %>% 
+  mutate(cars = row.names(.),
+         cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
+  count(cars, am) %>% 
+  adorn_totals()
+```
+</details>
+
+## Graphics :chart_with_upwards_trend:
+
+### Colours :art:
+
+Want to see all the colours available in R? Here's a ggplot2 version of [this great gist](https://github.com/hdugan/rColorTable/blob/master/rColorTable.R):  
+<details>
+<summary>Click to see code</summary>
+```{r fig.height = 15}
+# R colors minus 100 shades of grey
+library(dplyr)
+library(stringr)
+library(ggplot2)
+library(tibble)
+library(cowplot)
+
+# get 'data':
+colour <- tibble(colours = colors()) %>%
+  filter(!grepl("gray", colours),
+         !grepl("grey", colours)) %>%
+  mutate(general_colour = gsub("[0-9]", "", colours),
+         c1 = ifelse(grepl("1", colours), 1, 0),
+         c2 = ifelse(grepl("2", colours), 1, 0),
+         c3 = ifelse(grepl("3", colours), 1, 0),
+         c4 = ifelse(grepl("4", colours), 1, 0)) %>%
+  select(-1) %>%
+  group_by(general_colour) %>%
+  summarise_all(funs(sum)) %>%
+  ungroup() %>%
+  mutate(c1 = ifelse(grepl(1, c1), paste0(general_colour, c1), NA),
+         c2 = ifelse(grepl(1, c2), paste0(general_colour, "2"), NA),
+         c3 = ifelse(grepl(1, c3), paste0(general_colour, "3"), NA),
+         c4 = ifelse(grepl(1, c4), paste0(general_colour, "4"), NA),
+         c1 = ifelse(is.na(c1), general_colour, c1),
+         c2 = ifelse(is.na(c2), general_colour, c2),
+         c3 = ifelse(is.na(c3), general_colour, c3),
+         c4 = ifelse(is.na(c4), general_colour, c4))
+
+
+## create six plots:
+# Just the names, by setting alpha to 0:
+g0 <- ggplot(colour, aes(x = general_colour)) +
+  geom_bar(position = "stack", alpha = 0) +
+  coord_flip() +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+        axis.title.x = element_blank(), panel.grid = element_blank(),
+        axis.title.y = element_blank())
+
+g <- ggplot(colour, aes(x = general_colour, color = general_colour,
+                   fill = general_colour)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$general_colour) +
+  scale_fill_manual(values = colour$general_colour) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_1 <- ggplot(colour, aes(x = c1, color = c1,
+                        fill = c1)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c1) +
+  scale_fill_manual(values = colour$c1) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_2 <- ggplot(colour, aes(x = c2, color = c2,
+                        fill = c2)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c2) +
+  scale_fill_manual(values = colour$c2) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_3 <- ggplot(colour, aes(x = c3, color = c3,
+                        fill = c3)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c3) +
+  scale_fill_manual(values = colour$c3) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+g_4 <- ggplot(colour, aes(x = c4, color = c4,
+                        fill = c4)) +
+  geom_bar(position = "stack") +
+  coord_flip() +
+  scale_color_manual(values = colour$c4) +
+  scale_fill_manual(values = colour$c4) +
+  theme_minimal() +
+  theme(legend.position = "none") +
+  theme(axis.text = element_blank(), axis.ticks = element_blank(),
+        axis.title = element_blank(), panel.grid = element_blank())
+
+# cowplot 'em all together:
+p <- plot_grid(g0, g, g_1, g_2, g_3, g_4, align = "h", ncol = 6,
+          rel_widths = c(.75, 1.05, 1.05, 1.05, 1.05, 1.05))
+title <- ggdraw() + draw_label("Colours range from the bare name to the 4th hue (if it exists)\n           i.e. azure             azure1           azure2             azure3              azure4  ")
+plot_grid(title, p, ncol = 1, rel_heights=c(0.05, 1))
+```
+</details>
+
+### ggplot2 :bar_chart:
+
+You can use curly braces (`{}`) to avail of data wrangling in the middle of your ggplot2 code, as [Alistair](https://stackoverflow.com/users/4497050/alistaire) once explained to me. I can't find the code I was working on at the time, but the idea was to make some slopegraphs. This is a toy/ugly little example:   
+<details>
+<summary>Click to see code</summary>
+```{r}
+library(dplyr); library(ggplot2)
+
+df <- tibble(
+  area = rep(c("Health", "Education"), 6),
+  sub_area = rep(c("Staff", "Projects", "Activities"), 4),
+  year = c(rep(2016, 6), rep(2017, 6)),
+  value = c(15000, 12000, 18000, 24000, 14000, 12000, 13000, 16000, 11000, 
+            8000, 15000, 19000)
+) %>% arrange(area)
+
+df %>% filter(area == "Health") %>% {
+    ggplot(.) +    # add . to specify to insert results here
+        geom_line(aes(x = as.factor(year), y = value, 
+                      group = sub_area, color = sub_area), size = 2) + 
+        geom_point(aes(x = as.factor(year), y = value, 
+                       group = sub_area, color = sub_area), size = 2) +
+        theme_minimal(base_size = 18) + 
+        geom_text(data = dplyr::filter(., 
+        year == 2016 & sub_area == "Activities"),    # and here
+                  aes(x = as.factor(year), y = value, 
+                      color = sub_area, label = sub_area), size = 6, 
+                      hjust = 1.2) +
+    xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
+}
+```
+[Source](https://stackoverflow.com/questions/44007998/subset-filter-in-dplyr-chain-with-ggplot2)  
+</details>
+  
+<br>
+Neat little trick from James Goldie -- you can also use `dplyr::case_when()` to highlight certain points on a plot: 
+<details>
+<summary>Click to see code</summary>
+```{r message = FALSE, warning = FALSE}
+library(ggplot2); library(ggrepel); library(dplyr)
+
+df <- tibble(
+  x = 1:10,
+  y = rnorm(10),
+  name = c("Apple", "Banana", "Kiwi", "Orange", "Watermelon",
+           "Grapes", "Pear", "Canteloupe", "Tomato", "Satsuma")) %>%
+  mutate(name_poor = case_when(
+    y < 0 ~ name,
+    TRUE ~ ""))
+
+ggplot(df, aes(x = x, y = y)) +
+  geom_point(size = 3) +
+  geom_text_repel(aes(label = name_poor), point.padding = 2)
+```
+[Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
+</details>
+
+
+## Speed :zap:
 
 First off, an informative [SO discussion](https://stackoverflow.com/questions/2908822/speed-up-the-loop-operation-in-r) on the topic. Take-away: use specialized libraries (such as `data.table` and `Rccp`) if you *really* need speed.  
 
@@ -171,101 +374,15 @@ toc()
 
 I've seen this in a few places, but the most recent I remember was from [Colin Fay](https://twitter.com/_ColinFay/status/946714488220389377) on Twitter (Colin's a fountain of little R tips, particularly for purrr). 
 
-### Totals columns
-Nice totals column, from Andrew Heiss:
-
-[source](https://twitter.com/andrewheiss/status/973325552596664321?s=03)
-<details>
-<summary>Click to see code</summary>
-```{r}
-library(dplyr)
-library(stringr)
-library(pander)
-mtcars %>% 
-  mutate(cars = row.names(.),
-         cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
-  count(cars, am) %>% 
-  bind_rows(summarise_at(., vars(n), funs(sum)) %>%
-              mutate(cars = "**Total**")
-  ) %>% 
-  pandoc.table()
-```
-
-Also, from the comments to the above tweet, by Sam Firke, the author the [janitor](https://github.com/sfirke/janitor) package (I prefer this actually): 
-```{r}
-library(dplyr)
-library(janitor)
-mtcars %>% 
-  mutate(cars = row.names(.),
-         cars = str_extract(cars, "[A-Za-z\\b]*")) %>% 
-  count(cars, am) %>% 
-  adorn_totals()
-```
-</details>
-
-# ggplot2
-
-You can use curly braces (`{}`) to avail of data wrangling in the middle of your ggplot2 code, as [Alistair](https://stackoverflow.com/users/4497050/alistaire) once explained to me. I can't find the code I was working on at the time, but the idea was to make some slopegraphs. This is a toy/ugly little example:   
-<details>
-<summary>Click to see code</summary>
-```{r message = FALSE, warning = FALSE}
-library(dplyr); library(ggplot2)
-
-df <- tibble(
-  area = rep(c("Health", "Education"), 6),
-  sub_area = rep(c("Staff", "Projects", "Activities"), 4),
-  year = c(rep(2016, 6), rep(2017, 6)),
-  value = c(15000, 12000, 18000, 24000, 14000, 12000, 13000, 16000, 11000, 
-            8000, 15000, 19000)
-) %>% arrange(area)
-
-df %>% filter(area == "Health") %>% {
-    ggplot(.) +    # add . to specify to insert results here
-        geom_line(aes(x = as.factor(year), y = value, 
-                      group = sub_area, color = sub_area), size = 2) + 
-        geom_point(aes(x = as.factor(year), y = value, 
-                       group = sub_area, color = sub_area), size = 2) +
-        theme_minimal(base_size = 18) + 
-        geom_text(data = dplyr::filter(., 
-        year == 2016 & sub_area == "Activities"),    # and here
-                  aes(x = as.factor(year), y = value, 
-                      color = sub_area, label = sub_area), size = 6, 
-                      hjust = 1.2) +
-    xlab(NULL) + ylab(NULL) + theme(legend.position = "none")
-}
-```
-[Source](https://stackoverflow.com/questions/44007998/subset-filter-in-dplyr-chain-with-ggplot2)  
-</details>
-  
-
-Neat little trick from James Goldie -- you can also use `dplyr::case_when()` to highlight certain points on a plot: 
-<details>
-<summary>Click to see code</summary>
-```{r message = FALSE, warning = FALSE}
-library(ggplot2); library(ggrepel); library(dplyr)
-
-df <- tibble(
-  x = 1:10,
-  y = rnorm(10),
-  name = c("Apple", "Banana", "Kiwi", "Orange", "Watermelon",
-           "Grapes", "Pear", "Canteloupe", "Tomato", "Satsuma")) %>%
-  mutate(name_poor = case_when(
-    y < 0 ~ name,
-    TRUE ~ ""))
-
-ggplot(df, aes(x = x, y = y)) +
-  geom_point(size = 3) +
-  geom_text_repel(aes(label = name_poor), point.padding = 2)
-```
-[Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
-</details>
-## RMarkdown tricks
+## RMarkdown tricks :scroll:
 
 
-### R <--> Python
+### R <--> Python :snake:
+
 Recently it's been noticed by some [sharp]() observers that you can run Python and R in the same RMarkdown document and that the objects from one are available to the other.
 
 <div id="did-it-work" class="section level2">
+
 ### JavaScript
 
 If you use `results = 'asis'` in the head of your code chunk, i.e. ` ```{r results = 'asis'} `, RMarkdown will keep the result of the chunk 'alive', so to speak, in the document, for you to use. A good example of this is with JavaScript, which you can use to make a nifty [d3]() plot. A few bloggers have noted this, although I think the first was a blogger named [Alice](https://towardsdatascience.com/getting-r-and-d3-js-to-play-nicely-in-r-markdown-270e302a52d3). Here I'll use the example given by [Nick Strayer](http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/). First we save our data to the JSON format:     
@@ -294,7 +411,7 @@ random_data <- data_frame(x = runif(n)*10) %>%
 send_df_to_js(random_data)
 ```
 
-So far, so good -- the data is in our browser. In theory, now we can include a `js` code block. It's worth mentioning that, for me at least, this doesn't work perfectly (I'm probably doing something wrong). I had to actually include this code in the html of this README (you can see that it is doubled in the inspector of your browser or by looking at the page source).
+So far, so good -- the data is in our browser. In theory, now we can include a `js` code block. It's worth mentioning that, for me at least, this doesn't work perfectly (I'm probably doing something wrong). I had to actually include this code in the html of this README (hence the doubling of the code).
 
 ```{js}
 var point_vals = d3.select("#viz")
@@ -509,7 +626,7 @@ svg.append("g")
 </div>
 </details>
 
-## RStudio tricks
+## RStudio tricks :computer:
 
 `ts` plus Shift and Tab gives you a nice data-stamped code section:
 ```{r}
