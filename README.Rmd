@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 # Sweet R tricks :tophat::rabbit:
 Tips and tricks in R & RStudio, gathered from wherever I see them. Mainly a repo for me to remember cool little R tips I've seen around the place :metal:. I hope to update it regularly -- feel free to fork, add your own, and send a PR. I've left the `library()` calls in every chunk, in case you want to copy and paste some code. Long code chunks are hidden for readability. Just click on the little arrow and you can see the code. **This is clearly a work-in-progress-that-might-never-finish, so any corrections/tips/pull requests/additions are very welcome!**
 
-# I/O :minidisc:
+# I/O :floppy_disk:
 
 ### Making Saved Data Smaller
 Adding `compress = "xz"` to your `save()` function can make things much smaller. *Very* useful tip from [Ilya Kasnitsky](https://ikashnitsky.github.io/):
@@ -625,6 +625,30 @@ svg.append("g")
 </script>
 </div>
 </details>
+
+## Miscellaneous :control_knobs:
+
+I often find the syntax for negating `%in%` to be weird. For example:
+
+```{r}
+library(dplyr)
+library(tibble)
+mtcars %>% 
+  rownames_to_column(var = "cars") %>% 
+  filter(!cars %in% c("Toyota Corolla", "Honda Civic", "Datsun 710"))
+```
+
+'Not-cars-in-list' is defo weird for me. So I usually use `Negate()`:  
+
+```{r}
+library(dplyr)
+library(tibble)
+'%ni%' <- Negate('%in%')
+mtcars %>% 
+  rownames_to_column(var = "cars") %>% 
+  filter(cars %ni% c("Toyota Corolla", "Honda Civic", "Datsun 710"))
+```
+[Source](https://stackoverflow.com/questions/5831794/opposite-of-in)
 
 ## RStudio tricks :computer:
 
