@@ -280,7 +280,7 @@ ggplot(df, aes(x = x, y = y)) +
 First off, an informative [SO discussion](https://stackoverflow.com/questions/2908822/speed-up-the-loop-operation-in-r) on the topic. Take-away: use specialized libraries (such as `data.table` and `Rccp`) if you *really* need speed.  
 
 ### For Loops
-*Sometimes* `for()` loops may be necessary in R. They get a bad reputation, but it's not totally deserved (and the `apply()` family of functions don't necessarily speed things up, they're just wrappers for `for()` loops). This is old news in R, so let's dig out an old [bookmark of mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html) on the subject, by Utkarsh Upadhyay. (From 2012!! Wow. [Another interesting article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the subject, by Noam Ross, led me to it.) 
+*Sometimes* `for()` loops may be necessary in R. They get a bad reputation, but it's not totally deserved (and the `apply()` family of functions don't necessarily speed things up, they're just wrappers for `for()` loops). This is old news in R, so let's dig out an old [bookmark of mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html) on the subject, by Utkarsh Upadhyay. (From 2012!! Wow. [Another interesting article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the subject, by Noam Ross, led me to it.) What's happening here? We're *pre-allocating* vectors of the size we need before we run our for loops. Makes all the difference
 
 <details>
 <summary>Click to see code</summary>
@@ -296,14 +296,6 @@ f1 <- function (n) {
 }
 
 f2 <- function (n) {
-    l <- list()
-    for(i in 1:n) {
-        l[[length(l) + 1]] <- i
-    }
-    return(l)
-}
-
-f3 <- function (n) {
     l <- vector("list", n)  ## pre-allocate the size
     for(i in 1:n) {
         l[[i]] <- i
@@ -325,14 +317,10 @@ run.all <- function (reps = 10) {
     message("Running f2 ...")
     f2.prof <- sapply(timesSeq, function (arg) warm.up(f2, arg, reps)[1] / reps)
 
-    message("Running f3 ...")
-    f3.prof <- sapply(timesSeq, function (arg) warm.up(f3, arg, reps)[1] / reps)
-
     return(tibble(
                 timesSeq  =  timesSeq,
                 f1.prof = f1.prof,
-                f2.prof = f2.prof,
-                f3.prof = f3.prof
+                f2.prof = f2.prof
     ))
 }
 
@@ -342,7 +330,6 @@ library(ggplot2)
 ggplot(x, aes(x = timesSeq, group = 1)) +
   geom_line(aes(y = f1.prof), colour = "#ec0b43") +
   geom_line(aes(y = f2.prof), colour = "#58355e") +
-  geom_line(aes(y = f3.prof), colour = "#7ae7c7") +
   ylab(NULL) + theme_minimal() + xlab("Sequence") +
   annotate("label", x = 7500, y = 0.4, label = "f1.prof") 
 
@@ -379,8 +366,29 @@ I've seen this in a few places, but the most recent I remember was from [Colin F
 
 ### R <--> Python :snake:
 
-Recently it's been noticed by some [sharp]() observers that you can run Python and R in the same RMarkdown document and that the objects from one are available to the other.
+Recently it's been noticed by some [sharp]() observers that you can run Python and R in the same RMarkdown document and that the objects from one are available to the other. For example:  
+```{r}
+library(reticulate)
+```
 
+```{python}
+import pandas
+flights = pandas.read_csv("flights.csv")
+flights = flights[flights['dest'] == "ORD"]
+flights = flights[['carrier', 'dep_delay', 'arr_delay']]
+flights = flights.dropna()
+flights.describe()
+```
+
+```{r}
+library(ggplot2)
+ggplot(py$flights, aes(carrier, arr_delay)) +
+  geom_point() +
+  geom_jitter()
+```
+
+:heart_eyes:  
+[Source](https://twitter.com/benomial/status/978462177601490945?s=08)
 <div id="did-it-work" class="section level2">
 
 ### JavaScript

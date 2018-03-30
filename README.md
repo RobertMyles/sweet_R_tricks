@@ -418,7 +418,9 @@ mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html)
 on the subject, by Utkarsh Upadhyay. (From 2012\!\! Wow. [Another
 interesting
 article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the
-subject, by Noam Ross, led me to it.)
+subject, by Noam Ross, led me to it.) What’s happening here? We’re
+*pre-allocating* vectors of the size we need before we run our for
+loops. Makes all the difference
 
 <details>
 
@@ -436,14 +438,6 @@ f1 <- function (n) {
 }
 
 f2 <- function (n) {
-    l <- list()
-    for(i in 1:n) {
-        l[[length(l) + 1]] <- i
-    }
-    return(l)
-}
-
-f3 <- function (n) {
     l <- vector("list", n)  ## pre-allocate the size
     for(i in 1:n) {
         l[[i]] <- i
@@ -465,14 +459,10 @@ run.all <- function (reps = 10) {
     message("Running f2 ...")
     f2.prof <- sapply(timesSeq, function (arg) warm.up(f2, arg, reps)[1] / reps)
 
-    message("Running f3 ...")
-    f3.prof <- sapply(timesSeq, function (arg) warm.up(f3, arg, reps)[1] / reps)
-
     return(tibble(
                 timesSeq  =  timesSeq,
                 f1.prof = f1.prof,
-                f2.prof = f2.prof,
-                f3.prof = f3.prof
+                f2.prof = f2.prof
     ))
 }
 
@@ -482,7 +472,6 @@ library(ggplot2)
 ggplot(x, aes(x = timesSeq, group = 1)) +
   geom_line(aes(y = f1.prof), colour = "#ec0b43") +
   geom_line(aes(y = f2.prof), colour = "#58355e") +
-  geom_line(aes(y = f3.prof), colour = "#7ae7c7") +
   ylab(NULL) + theme_minimal() + xlab("Sequence") +
   annotate("label", x = 7500, y = 0.4, label = "f1.prof") 
 ```

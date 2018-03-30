@@ -13,3 +13,4 @@ ggrepel
 jsonlite
 cowplot
 tibble
+reticulate
