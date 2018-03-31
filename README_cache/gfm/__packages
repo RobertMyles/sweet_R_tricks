@@ -12,3 +12,5 @@ ggrepel
 tictoc
 reticulate
 jsonlite
+readr
+purrr

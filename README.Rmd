@@ -34,6 +34,24 @@ file.info("sen2.Rda")$size
 
 [Source](https://twitter.com/ikashnitsky/status/973325892956184576)
 
+### Reading in lots of files
+
+It's a common task that you have a folder full of files, let's say `.csv` files, and you want to read them all into R and put them in a single data frame. Here's a purrr version (you might want to use data.table's `fread()` and `rbind.list()` if you have lots of files):  
+
+```{r}
+library(readr)
+library(dplyr)
+library(purrr)
+library(stringr)
+
+df <- dir() %>%
+  .[str_detect(., '.csv')] %>%
+  map_df(read_csv)
+
+```
+
+That's just beautiful code, isn't it?
+
 ## Packages :package:
 
 ### Loading more than one at the same time

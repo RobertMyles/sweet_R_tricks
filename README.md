@@ -44,6 +44,26 @@ file.info("sen2.Rda")$size
 
 [Source](https://twitter.com/ikashnitsky/status/973325892956184576)
 
+### Reading in lots of files
+
+It’s a common task that you have a folder full of files, let’s say
+`.csv` files, and you want to read them all into R and put them in a
+single data frame. Here’s a purrr version (you might want to use
+data.table’s `fread()` and `rbind.list()` if you have lots of files):
+
+``` r
+library(readr)
+library(dplyr)
+library(purrr)
+library(stringr)
+
+df <- dir() %>%
+  .[str_detect(., '.csv')] %>%
+  map_df(read_csv)
+```
+
+That’s just beautiful code, isn’t it?
+
 ## Packages :package:
 
 ### Loading more than one at the same time
@@ -325,7 +345,7 @@ title <- ggdraw() + draw_label("Colours range from the bare name to the 4th hue 
 plot_grid(title, p, ncol = 1, rel_heights=c(0.05, 1))
 ```
 
-![](README-unnamed-chunk-7-1.png)<!-- -->
+![](README-unnamed-chunk-8-1.png)<!-- -->
 
 </details>
 
@@ -369,7 +389,7 @@ df %>% filter(area == "Health") %>% {
 }
 ```
 
-![](README-unnamed-chunk-8-1.png)<!-- -->
+![](README-unnamed-chunk-9-1.png)<!-- -->
 [Source](https://stackoverflow.com/questions/44007998/subset-filter-in-dplyr-chain-with-ggplot2)
 
 </details>
@@ -398,7 +418,7 @@ ggplot(df, aes(x = x, y = y)) +
   geom_text_repel(aes(label = name_poor), point.padding = 2)
 ```
 
-![](README-unnamed-chunk-9-1.png)<!-- -->
+![](README-unnamed-chunk-10-1.png)<!-- -->
 [Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
 
 </details>
@@ -479,7 +499,7 @@ ggplot(x, aes(x = timesSeq, group = 1)) +
   labs(subtitle = "The red line is f1.prof!")
 ```
 
-![](README-unnamed-chunk-10-1.png)<!-- -->
+![](README-unnamed-chunk-11-1.png)<!-- -->
 
 </details>
 
@@ -497,7 +517,7 @@ tic()
 if(any(x > 5)) print("hey!")
 #> [1] "hey!"
 toc()
-#> 0.006 sec elapsed
+#> 0.002 sec elapsed
 
 tic()
 if(any(x > 5)) {
@@ -505,7 +525,7 @@ if(any(x > 5)) {
 }
 #> [1] "hey!"
 toc()
-#> 0.041 sec elapsed
+#> 0.019 sec elapsed
 ```
 
 I’ve seen this in a few places, but the most recent I remember was from
