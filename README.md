@@ -10,7 +10,7 @@ hidden for readability. Just click on the little arrow and you can see
 the code. **This is clearly a work-in-progress-that-might-never-finish,
 so any corrections/tips/pull requests/additions are very welcome\!**
 
-# I/O :minidisc:
+# I/O :floppy\_disk:
 
 ### Making Saved Data Smaller
 
@@ -25,12 +25,12 @@ head(senate_nominal_votes)
 #> # A tibble: 6 x 9
 #>   vote_date           bill_id bill    legislature senator_id senator_name 
 #>   <dttm>              <chr>   <chr>   <chr>       <chr>      <chr>        
-#> 1 1991-06-06 00:00:00 19615   PLC:19~ 49          31         Guilherme Pa~
-#> 2 1991-06-06 00:00:00 19615   PLC:19~ 49          47         Jose Sarney  
-#> 3 1991-06-06 00:00:00 19615   PLC:19~ 49          82         Amazonino Me~
-#> 4 1991-06-06 00:00:00 19615   PLC:19~ 49          33         Humberto Luc~
-#> 5 1991-06-06 00:00:00 19615   PLC:19~ 49          79         Valmir Campe~
-#> 6 1991-06-06 00:00:00 19615   PLC:19~ 49          84         Antonio Mariz
+#> 1 1991-06-06 00:00:00 19615   PLC:19… 49          31         Guilherme Pa…
+#> 2 1991-06-06 00:00:00 19615   PLC:19… 49          47         Jose Sarney  
+#> 3 1991-06-06 00:00:00 19615   PLC:19… 49          82         Amazonino Me…
+#> 4 1991-06-06 00:00:00 19615   PLC:19… 49          33         Humberto Luc…
+#> 5 1991-06-06 00:00:00 19615   PLC:19… 49          79         Valmir Campe…
+#> 6 1991-06-06 00:00:00 19615   PLC:19… 49          84         Antonio Mariz
 #> # ... with 3 more variables: senator_vote <chr>, senator_party <chr>,
 #> #   senator_state <chr>
 save(list = ls(), file = "sen.Rda")
@@ -39,7 +39,7 @@ save(list = ls(), file = "sen2.Rda", compress = "xz")
 file.info("sen.Rda")$size
 #> [1] 73485
 file.info("sen2.Rda")$size
-#> [1] 38408
+#> [1] 38416
 ```
 
 [Source](https://twitter.com/ikashnitsky/status/973325892956184576)
@@ -84,6 +84,9 @@ old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", v
       }
     }
 ```
+
+I’m not sure this is necessary anymore, the last time I updated R, all
+my packages were still installed. Anyway.
 
 </details>
 
@@ -420,7 +423,7 @@ interesting
 article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the
 subject, by Noam Ross, led me to it.) What’s happening here? We’re
 *pre-allocating* vectors of the size we need before we run our for
-loops. Makes all the difference
+loops. Makes all the difference:
 
 <details>
 
@@ -473,7 +476,7 @@ ggplot(x, aes(x = timesSeq, group = 1)) +
   geom_line(aes(y = f1.prof), colour = "#ec0b43") +
   geom_line(aes(y = f2.prof), colour = "#58355e") +
   ylab(NULL) + theme_minimal() + xlab("Sequence") +
-  annotate("label", x = 7500, y = 0.4, label = "f1.prof") 
+  labs(subtitle = "The red line is f1.prof!")
 ```
 
 ![](README-unnamed-chunk-10-1.png)<!-- -->
@@ -494,7 +497,7 @@ tic()
 if(any(x > 5)) print("hey!")
 #> [1] "hey!"
 toc()
-#> 0 sec elapsed
+#> 0.006 sec elapsed
 
 tic()
 if(any(x > 5)) {
@@ -502,7 +505,7 @@ if(any(x > 5)) {
 }
 #> [1] "hey!"
 toc()
-#> 0.02 sec elapsed
+#> 0.041 sec elapsed
 ```
 
 I’ve seen this in a few places, but the most recent I remember was from
@@ -511,22 +514,27 @@ Twitter (Colin’s a fountain of little R tips, particularly for purrr).
 
 ## RMarkdown tricks :scroll:
 
-### R \<–\> Python :snake:
+You can save a lot of time by setting `cache = TRUE` in the knitr
+options. I usually set `warning` and `message` to `FALSE` too, which
+avoids package messages (like those from dplyr, for example) printing in
+your RMarkdown document.
 
-Recently it’s been noticed by some [sharp]() observers that you can run
-Python and R in the same RMarkdown document and that the objects from
-one are available to the other.
-
-<div id="did-it-work" class="section level2">
+``` r
+knitr::opts_chunk$set(
+  cache = TRUE,
+  message = FALSE, 
+  warning = FALSE
+)
+```
 
 ### JavaScript
 
 If you use `results = 'asis'` in the head of your code chunk, i.e.
 ` ```{r results = 'asis'}`, RMarkdown will keep the result of the chunk
 ‘alive’, so to speak, in the document, for you to use. A good example
-of this is with JavaScript, which you can use to make a nifty [d3]()
-plot. A few bloggers have noted this, although I think the first was a
-blogger named
+of this is with JavaScript, which you can use to make a nifty
+[d3](https://d3js.org/) plot. A few bloggers have noted this, although I
+think the first was a blogger named
 [Alice](https://towardsdatascience.com/getting-r-and-d3-js-to-play-nicely-in-r-markdown-270e302a52d3).
 Here I’ll use the example given by [Nick
 Strayer](http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/).
@@ -560,85 +568,20 @@ send_df_to_js(random_data)
 ```
 
 <script>
-      var data = [{"x":8.103,"y":86.7402,"group":"group 1"},{"x":8.7439,"y":197.4511,"group":"group 1"},{"x":4.2071,"y":29.451,"group":"group 2"},{"x":7.5617,"y":204.3649,"group":"group 1"},{"x":1.4189,"y":60.0383,"group":"group 1"},{"x":9.5949,"y":321.1256,"group":"group 3"},{"x":9.9908,"y":381.4802,"group":"group 1"},{"x":7.4749,"y":146.6041,"group":"group 2"},{"x":1.5231,"y":100.868,"group":"group 1"},{"x":8.3449,"y":388.6036,"group":"group 1"},{"x":1.207,"y":-30.9337,"group":"group 3"},{"x":0.7788,"y":42.0217,"group":"group 1"},{"x":4.5534,"y":-73.5783,"group":"group 1"},{"x":8.6564,"y":230.1357,"group":"group 1"},{"x":8.9658,"y":143.7412,"group":"group 2"},{"x":9.8511,"y":323.7692,"group":"group 1"},{"x":2.0767,"y":-34.4321,"group":"group 1"},{"x":7.2344,"y":65.7019,"group":"group 2"},{"x":9.7014,"y":292.3689,"group":"group 3"},{"x":0.1007,"y":-29.8162,"group":"group 2"},{"x":7.7548,"y":242.0706,"group":"group 1"},{"x":8.198,"y":63.9315,"group":"group 2"},{"x":7.0416,"y":4.8066,"group":"group 1"},{"x":9.2052,"y":254.2194,"group":"group 1"},{"x":1.7674,"y":28.545,"group":"group 3"},{"x":8.575,"y":375.1565,"group":"group 2"},{"x":7.0775,"y":168.8794,"group":"group 3"},{"x":3.7368,"y":-65.5175,"group":"group 1"},{"x":0.4063,"y":100.6763,"group":"group 3"},{"x":2.4053,"y":114.8471,"group":"group 1"},{"x":2.3741,"y":-92.57,"group":"group 1"},{"x":6.4647,"y":70.0536,"group":"group 3"},{"x":1.6201,"y":-81.2386,"group":"group 2"},{"x":2.075,"y":34.4821,"group":"group 3"},{"x":9.402,"y":450.3115,"group":"group 1"},{"x":0.4809,"y":-45.9321,"group":"group 3"},{"x":0.0238,"y":-108.7961,"group":"group 2"},{"x":8.4916,"y":218.1847,"group":"group 3"},{"x":9.8455,"y":421.8797,"group":"group 2"},{"x":3.7093,"y":-15.2337,"group":"group 3"},{"x":4.3968,"y":-101.6621,"group":"group 3"},{"x":5.1173,"y":89.087,"group":"group 1"},{"x":3.0655,"y":-15.3205,"group":"group 1"},{"x":8.1903,"y":145.7186,"group":"group 1"},{"x":6.8146,"y":-34.6354,"group":"group 3"},{"x":1.9743,"y":5.6999,"group":"group 3"},{"x":7.4757,"y":169.3731,"group":"group 1"},{"x":2.8917,"y":65.2363,"group":"group 3"},{"x":3.1654,"y":50.7972,"group":"group 3"},{"x":9.3466,"y":299.8652,"group":"group 1"},{"x":6.0921,"y":125.4469,"group":"group 3"},{"x":7.1024,"y":59.9396,"group":"group 2"},{"x":7.3469,"y":13.0229,"group":"group 3"},{"x":9.9294,"y":200.3085,"group":"group 3"},{"x":4.3294,"y":137.4486,"group":"group 3"},{"x":8.9375,"y":213.9669,"group":"group 3"},{"x":0.0383,"y":196.5973,"group":"group 1"},{"x":3.1562,"y":122.4486,"group":"group 3"},{"x":0.863,"y":49.265,"group":"group 2"},{"x":5.3438,"y":53.8001,"group":"group 1"},{"x":1.6782,"y":102.7396,"group":"group 2"},{"x":4.755,"y":33.6605,"group":"group 2"},{"x":0.3569,"y":54.5937,"group":"group 1"},{"x":3.2526,"y":-29.8945,"group":"group 2"},{"x":1.5654,"y":-128.9608,"group":"group 1"},{"x":6.9672,"y":98.1123,"group":"group 1"},{"x":6.502,"y":-8.0514,"group":"group 1"},{"x":7.0893,"y":126.5577,"group":"group 3"},{"x":2.6327,"y":44.2484,"group":"group 1"},{"x":1.0505,"y":36.6619,"group":"group 1"},{"x":9.9161,"y":271.8027,"group":"group 1"},{"x":2.2656,"y":16.1428,"group":"group 1"},{"x":4.4611,"y":38.3194,"group":"group 2"},{"x":1.9614,"y":-108.6956,"group":"group 1"},{"x":4.879,"y":-4.5173,"group":"group 2"},{"x":1.0558,"y":-77.1588,"group":"group 1"},{"x":7.6539,"y":155.9724,"group":"group 2"},{"x":9.6781,"y":335.5122,"group":"group 1"},{"x":9.5276,"y":287.7447,"group":"group 3"},{"x":5.5007,"y":-19.271,"group":"group 3"},{"x":6.3204,"y":148.122,"group":"group 2"},{"x":9.4689,"y":281.97,"group":"group 1"},{"x":5.9246,"y":47.7258,"group":"group 1"},{"x":7.6634,"y":147.9946,"group":"group 2"},{"x":9.5606,"y":370.3577,"group":"group 3"},{"x":8.5295,"y":284.1755,"group":"group 1"},{"x":3.4706,"y":-78.6518,"group":"group 3"},{"x":2.9121,"y":53.8723,"group":"group 3"},{"x":7.6155,"y":137.8683,"group":"group 2"},{"x":5.2936,"y":80.4765,"group":"group 1"},{"x":9.2398,"y":285.6219,"group":"group 2"},{"x":7.3712,"y":315.0608,"group":"group 1"},{"x":2.325,"y":-63.8048,"group":"group 3"},{"x":7.5872,"y":35.9008,"group":"group 2"},{"x":9.5515,"y":326,"group":"group 3"},{"x":5.9193,"y":97.0749,"group":"group 2"},{"x":1.4837,"y":65.496,"group":"group 1"},{"x":8.2412,"y":231.06,"group":"group 1"},{"x":9.6949,"y":489.9796,"group":"group 3"},{"x":8.9145,"y":270.6104,"group":"group 1"},{"x":1.2725,"y":-4.7867,"group":"group 2"},{"x":7.7914,"y":124.9516,"group":"group 3"},{"x":4.7834,"y":-17.6549,"group":"group 3"},{"x":2.7969,"y":36.6924,"group":"group 1"},{"x":2.9202,"y":-110.3515,"group":"group 3"},{"x":4.021,"y":78.6029,"group":"group 3"},{"x":5.726,"y":167.7728,"group":"group 2"},{"x":3.0021,"y":35.239,"group":"group 3"},{"x":5.9865,"y":52.8645,"group":"group 1"},{"x":1.5426,"y":-76.1036,"group":"group 1"},{"x":3.6409,"y":43.6313,"group":"group 1"},{"x":0.8369,"y":85.3464,"group":"group 1"},{"x":1.7144,"y":-68.4554,"group":"group 1"},{"x":1.6103,"y":-5.433,"group":"group 2"},{"x":3.4167,"y":100.5059,"group":"group 1"},{"x":7.4634,"y":50.1484,"group":"group 2"},{"x":0.2122,"y":-15.2685,"group":"group 3"},{"x":0.4485,"y":-44.1115,"group":"group 2"},{"x":1.6252,"y":70.0689,"group":"group 1"},{"x":1.5803,"y":-43.6638,"group":"group 1"},{"x":8.0066,"y":179.5825,"group":"group 1"},{"x":7.6754,"y":149.7667,"group":"group 2"},{"x":3.7629,"y":20.8573,"group":"group 3"},{"x":5.1304,"y":99.8339,"group":"group 2"},{"x":9.1251,"y":233.6965,"group":"group 1"},{"x":8.4244,"y":309.8546,"group":"group 2"},{"x":7.0516,"y":100.108,"group":"group 3"},{"x":7.5365,"y":121.0626,"group":"group 1"},{"x":0.6463,"y":95.7489,"group":"group 2"},{"x":8.0545,"y":101.5553,"group":"group 2"},{"x":3.5313,"y":-22.8517,"group":"group 2"},{"x":3.1859,"y":-49.1032,"group":"group 3"},{"x":2.4855,"y":-47.5173,"group":"group 1"},{"x":2.0365,"y":-95.5107,"group":"group 1"},{"x":0.4324,"y":-137.3014,"group":"group 2"},{"x":0.5931,"y":157.4185,"group":"group 1"},{"x":1.1845,"y":-102.37,"group":"group 1"},{"x":5.7486,"y":235.6096,"group":"group 3"},{"x":3.0686,"y":-132.6672,"group":"group 3"},{"x":5.9286,"y":20.8797,"group":"group 2"},{"x":5.1272,"y":-26.4321,"group":"group 2"},{"x":4.5057,"y":171.5009,"group":"group 1"},{"x":2.5383,"y":7.2243,"group":"group 2"},{"x":0.9511,"y":76.9624,"group":"group 3"},{"x":3.0795,"y":-61.3218,"group":"group 1"},{"x":3.703,"y":-87.7659,"group":"group 3"},{"x":2.1823,"y":-63.485,"group":"group 1"},{"x":8.6205,"y":170.364,"group":"group 2"},{"x":2.7893,"y":-17.7343,"group":"group 3"},{"x":4.3595,"y":79.9572,"group":"group 3"},{"x":7.617,"y":191.6001,"group":"group 1"},{"x":4.7626,"y":-29.8292,"group":"group 3"},{"x":2.5326,"y":153.7943,"group":"group 3"},{"x":0.539,"y":113.5021,"group":"group 3"},{"x":7.2031,"y":59.0557,"group":"group 3"},{"x":3.0999,"y":32.0745,"group":"group 1"},{"x":9.1232,"y":320.7872,"group":"group 2"},{"x":5.7735,"y":-59.6127,"group":"group 3"},{"x":0.6505,"y":-83.0923,"group":"group 3"},{"x":8.1185,"y":265.9682,"group":"group 2"},{"x":0.686,"y":52.7111,"group":"group 3"},{"x":3.3859,"y":18.3805,"group":"group 2"},{"x":0.4869,"y":-73.9643,"group":"group 3"},{"x":9.1598,"y":378.7131,"group":"group 3"},{"x":6.6697,"y":-18.0737,"group":"group 3"},{"x":6.4425,"y":87.9223,"group":"group 3"},{"x":2.6156,"y":-58.7537,"group":"group 1"},{"x":4.6022,"y":109.3342,"group":"group 3"},{"x":3.6885,"y":49.0313,"group":"group 3"},{"x":6.919,"y":30.8258,"group":"group 3"},{"x":4.0037,"y":170.8636,"group":"group 1"},{"x":4.4059,"y":22.9812,"group":"group 2"},{"x":8.7799,"y":200.8394,"group":"group 1"},{"x":7.6865,"y":262.7717,"group":"group 1"},{"x":0.4444,"y":25.0451,"group":"group 1"},{"x":1.3286,"y":-69.2757,"group":"group 3"},{"x":0.3063,"y":98.0064,"group":"group 1"},{"x":5.6595,"y":0.0823,"group":"group 2"},{"x":2.4996,"y":-11.543,"group":"group 3"},{"x":7.5537,"y":324.6813,"group":"group 3"},{"x":4.9615,"y":75.3146,"group":"group 1"},{"x":1.5169,"y":-39.5618,"group":"group 1"},{"x":7.6152,"y":242.282,"group":"group 1"},{"x":0.0961,"y":7.1361,"group":"group 1"},{"x":7.9532,"y":168.8155,"group":"group 1"},{"x":4.4579,"y":21.9089,"group":"group 2"},{"x":0.0177,"y":-39.6452,"group":"group 3"},{"x":1.6915,"y":-25.8754,"group":"group 3"},{"x":2.9173,"y":85.8438,"group":"group 3"},{"x":7.5948,"y":153.8223,"group":"group 3"},{"x":7.081,"y":81.9249,"group":"group 2"},{"x":6.2184,"y":97.795,"group":"group 3"},{"x":2.1373,"y":-4.313,"group":"group 2"},{"x":2.5535,"y":46.0033,"group":"group 3"},{"x":0.3039,"y":-27.0841,"group":"group 2"},{"x":2.1785,"y":19.4173,"group":"group 1"},{"x":1.34,"y":27.3163,"group":"group 2"},{"x":3.5686,"y":-28.19,"group":"group 2"},{"x":0.3973,"y":-16.8803,"group":"group 2"},{"x":0.5091,"y":43.2071,"group":"group 3"},{"x":4.2296,"y":65.2937,"group":"group 3"},{"x":4.951,"y":-57.5061,"group":"group 2"},{"x":8.3831,"y":300.9616,"group":"group 3"},{"x":3.2314,"y":-26.8956,"group":"group 1"},{"x":4.6488,"y":193.7889,"group":"group 2"},{"x":6.9427,"y":43.0276,"group":"group 3"},{"x":1.1255,"y":11.5909,"group":"group 2"},{"x":3.9973,"y":90.4737,"group":"group 2"},{"x":1.1128,"y":180.4831,"group":"group 3"},{"x":1.8209,"y":-64.5322,"group":"group 2"},{"x":1.9411,"y":98.1779,"group":"group 3"},{"x":6.6769,"y":100.5575,"group":"group 3"},{"x":7.5759,"y":184.8111,"group":"group 3"},{"x":8.7748,"y":280.273,"group":"group 2"},{"x":0.1171,"y":11.8293,"group":"group 1"},{"x":0.8159,"y":-145.6048,"group":"group 1"},{"x":6.6585,"y":236.956,"group":"group 1"},{"x":6.0998,"y":50.0843,"group":"group 1"},{"x":9.8368,"y":533.1323,"group":"group 3"},{"x":3.2973,"y":103.9156,"group":"group 3"},{"x":1.7268,"y":-155.304,"group":"group 1"},{"x":6.816,"y":47.5981,"group":"group 3"},{"x":6.6177,"y":106.5253,"group":"group 3"},{"x":7.9468,"y":50.4556,"group":"group 3"},{"x":1.5964,"y":74.7369,"group":"group 3"},{"x":9.6806,"y":310.5809,"group":"group 1"},{"x":2.7352,"y":-1.9341,"group":"group 2"},{"x":0.4426,"y":-109.1418,"group":"group 3"},{"x":4.386,"y":-38.042,"group":"group 3"},{"x":0.1925,"y":-24.4206,"group":"group 3"},{"x":6.588,"y":39.9157,"group":"group 3"},{"x":4.2437,"y":32.6954,"group":"group 3"},{"x":5.4985,"y":-30.503,"group":"group 1"},{"x":6.3582,"y":178.9358,"group":"group 2"},{"x":2.978,"y":-126.0909,"group":"group 2"},{"x":5.2623,"y":88.3583,"group":"group 3"},{"x":5.236,"y":38.6045,"group":"group 1"},{"x":3.3997,"y":83.6218,"group":"group 3"},{"x":3.4785,"y":-6.1039,"group":"group 3"},{"x":5.8229,"y":8.3752,"group":"group 3"},{"x":3.0161,"y":-60.3151,"group":"group 3"},{"x":1.4939,"y":-81.2438,"group":"group 2"},{"x":7.0634,"y":120.327,"group":"group 1"},{"x":5.7835,"y":91.3903,"group":"group 1"},{"x":7.1402,"y":220.1639,"group":"group 1"},{"x":2.9966,"y":-75.3986,"group":"group 1"},{"x":4.4911,"y":-94.7608,"group":"group 2"},{"x":4.4114,"y":74.951,"group":"group 3"},{"x":0.3112,"y":-39.9943,"group":"group 3"},{"x":3.8355,"y":78.8466,"group":"group 1"},{"x":7.1334,"y":124.8963,"group":"group 1"},{"x":9.5536,"y":251.8924,"group":"group 2"},{"x":8.9052,"y":191.0079,"group":"group 2"},{"x":5.4922,"y":-44.4077,"group":"group 2"},{"x":2.1255,"y":-12.3255,"group":"group 1"},{"x":1.3134,"y":-103.9604,"group":"group 2"},{"x":4.9493,"y":138.2637,"group":"group 1"},{"x":4.7896,"y":70.0343,"group":"group 2"},{"x":7.0502,"y":211.2358,"group":"group 1"},{"x":2.9233,"y":-67.497,"group":"group 2"},{"x":5.2475,"y":-74.4625,"group":"group 3"},{"x":3.3903,"y":-24.3826,"group":"group 3"},{"x":2.9965,"y":-24.6019,"group":"group 2"},{"x":0.88,"y":-78.8869,"group":"group 1"},{"x":8.6304,"y":226.2304,"group":"group 3"},{"x":4.5852,"y":30.2331,"group":"group 2"},{"x":5.2291,"y":-22.419,"group":"group 1"},{"x":9.9363,"y":452.5841,"group":"group 3"},{"x":2.5226,"y":-62.7196,"group":"group 3"},{"x":1.9795,"y":75.4291,"group":"group 3"},{"x":9.0446,"y":353.2988,"group":"group 3"},{"x":4.7386,"y":-85.0666,"group":"group 2"},{"x":2.6976,"y":52.0098,"group":"group 3"},{"x":7.5037,"y":111.3109,"group":"group 2"},{"x":9.1355,"y":370.7428,"group":"group 1"},{"x":8.6682,"y":134.4515,"group":"group 1"},{"x":7.1988,"y":89.4978,"group":"group 2"},{"x":8.4943,"y":212.2201,"group":"group 2"},{"x":9.3155,"y":202.7807,"group":"group 3"},{"x":1.8189,"y":115.0819,"group":"group 2"},{"x":8.62,"y":411.3743,"group":"group 2"},{"x":4.6895,"y":39.882,"group":"group 3"},{"x":9.5722,"y":369.8614,"group":"group 1"},{"x":0.4461,"y":-167.2508,"group":"group 2"},{"x":4.1167,"y":83.4281,"group":"group 2"},{"x":7.416,"y":17.7118,"group":"group 3"},{"x":2.7353,"y":-70.1984,"group":"group 1"},{"x":9.7059,"y":294.9552,"group":"group 3"},{"x":1.2325,"y":-35.8302,"group":"group 3"},{"x":6.1942,"y":10.8541,"group":"group 2"},{"x":0.5619,"y":-48.5107,"group":"group 1"},{"x":6.7181,"y":56.9658,"group":"group 1"},{"x":1.3658,"y":-128.5389,"group":"group 1"},{"x":4.1637,"y":-23.2093,"group":"group 1"},{"x":3.8346,"y":-12.2316,"group":"group 2"},{"x":1.7371,"y":69.0871,"group":"group 2"},{"x":4.1658,"y":-32.7748,"group":"group 2"},{"x":9.2749,"y":207.8547,"group":"group 1"},{"x":9.1014,"y":253.5837,"group":"group 1"},{"x":9.2798,"y":152.2201,"group":"group 1"}];
+      var data = [{"x":5.3401,"y":39.0716,"group":"group 3"},{"x":6.6338,"y":93.7334,"group":"group 3"},{"x":8.2901,"y":228.0466,"group":"group 1"},{"x":2.7182,"y":37.5723,"group":"group 2"},{"x":1.5512,"y":-9.902,"group":"group 3"},{"x":1.042,"y":3.8274,"group":"group 2"},{"x":0.336,"y":1.4782,"group":"group 3"},{"x":2.8209,"y":-0.3232,"group":"group 1"},{"x":8.28,"y":255.8445,"group":"group 2"},{"x":4.2061,"y":63.6519,"group":"group 1"},{"x":6.7488,"y":202.0291,"group":"group 2"},{"x":4.3768,"y":-75.2349,"group":"group 3"},{"x":6.5177,"y":-6.1701,"group":"group 3"},{"x":0.4793,"y":-191.2183,"group":"group 3"},{"x":6.0034,"y":45.3629,"group":"group 1"},{"x":9.8132,"y":384.5149,"group":"group 3"},{"x":5.8042,"y":93.6758,"group":"group 2"},{"x":2.2953,"y":-3.3002,"group":"group 1"},{"x":3.5459,"y":-119.2527,"group":"group 2"},{"x":1.0486,"y":13.2127,"group":"group 1"},{"x":6.4506,"y":80.7153,"group":"group 2"},{"x":6.2397,"y":89.6931,"group":"group 2"},{"x":4.7163,"y":-47.4085,"group":"group 1"},{"x":0.5116,"y":-111.2345,"group":"group 1"},{"x":1.0823,"y":-18.8295,"group":"group 3"},{"x":3.4057,"y":79.3189,"group":"group 3"},{"x":0.2723,"y":98.7634,"group":"group 3"},{"x":9.9162,"y":433.4107,"group":"group 3"},{"x":6.7135,"y":125.9115,"group":"group 3"},{"x":1.9728,"y":86.3954,"group":"group 3"},{"x":2.8927,"y":-43.8808,"group":"group 2"},{"x":0.3748,"y":-13.5811,"group":"group 1"},{"x":7.379,"y":55.2453,"group":"group 2"},{"x":8.289,"y":122.4287,"group":"group 1"},{"x":3.4063,"y":109.6761,"group":"group 1"},{"x":4.8231,"y":-48.4254,"group":"group 1"},{"x":8.397,"y":248.0727,"group":"group 1"},{"x":0.1814,"y":86.3628,"group":"group 3"},{"x":1.2935,"y":7.3678,"group":"group 1"},{"x":2.1564,"y":-33.0926,"group":"group 1"},{"x":3.2591,"y":-18.7834,"group":"group 2"},{"x":2.7566,"y":-18.4932,"group":"group 1"},{"x":5.5267,"y":-14.8679,"group":"group 1"},{"x":8.3973,"y":364.6498,"group":"group 3"},{"x":9.1804,"y":311.1261,"group":"group 1"},{"x":2.8878,"y":18.5191,"group":"group 2"},{"x":4.871,"y":123.8731,"group":"group 3"},{"x":6.5283,"y":79.8275,"group":"group 1"},{"x":5.4959,"y":-53.2841,"group":"group 3"},{"x":9.7878,"y":281.9277,"group":"group 1"},{"x":7.2117,"y":91.9277,"group":"group 3"},{"x":7.3506,"y":46.0661,"group":"group 1"},{"x":9.7868,"y":323.0521,"group":"group 2"},{"x":0.7567,"y":-12.9832,"group":"group 1"},{"x":4.7054,"y":287.4406,"group":"group 1"},{"x":4.4307,"y":96.2093,"group":"group 2"},{"x":3.1056,"y":0.7669,"group":"group 1"},{"x":8.7168,"y":277.5708,"group":"group 2"},{"x":6.4043,"y":-33.9938,"group":"group 1"},{"x":0.7746,"y":-58.2481,"group":"group 1"},{"x":9.2001,"y":267.167,"group":"group 1"},{"x":1.7379,"y":-49.5483,"group":"group 1"},{"x":6.6733,"y":72.8959,"group":"group 1"},{"x":7.1162,"y":-6.1229,"group":"group 2"},{"x":3.9676,"y":55.3533,"group":"group 2"},{"x":7.4902,"y":125.5176,"group":"group 2"},{"x":9.7533,"y":298.3493,"group":"group 1"},{"x":5.1503,"y":-22.5537,"group":"group 2"},{"x":9.743,"y":310.087,"group":"group 1"},{"x":1.4588,"y":71.8041,"group":"group 1"},{"x":4.9573,"y":82.7077,"group":"group 1"},{"x":8.4968,"y":224.244,"group":"group 2"},{"x":6.6115,"y":252.2905,"group":"group 3"},{"x":1.595,"y":54.2913,"group":"group 2"},{"x":8.9802,"y":151.1671,"group":"group 2"},{"x":8.8759,"y":173.4016,"group":"group 1"},{"x":5.3035,"y":-23.5795,"group":"group 3"},{"x":2.0884,"y":30.44,"group":"group 3"},{"x":7.8842,"y":201.179,"group":"group 1"},{"x":0.8815,"y":-0.327,"group":"group 2"},{"x":6.4225,"y":165.6921,"group":"group 2"},{"x":7.4543,"y":143.5773,"group":"group 1"},{"x":8.4569,"y":268.552,"group":"group 1"},{"x":2.4357,"y":-67.6614,"group":"group 3"},{"x":4.4889,"y":268.9791,"group":"group 1"},{"x":2.02,"y":122.7683,"group":"group 2"},{"x":9.1044,"y":301.4335,"group":"group 1"},{"x":9.5319,"y":323.3781,"group":"group 3"},{"x":5.9219,"y":38.8553,"group":"group 1"},{"x":8.7043,"y":223.3024,"group":"group 2"},{"x":7.9521,"y":166.9715,"group":"group 1"},{"x":6.0137,"y":188.1122,"group":"group 1"},{"x":7.3462,"y":52.0581,"group":"group 3"},{"x":1.5033,"y":-10.8771,"group":"group 1"},{"x":2.6847,"y":75.6129,"group":"group 3"},{"x":1.2873,"y":-2.8788,"group":"group 2"},{"x":3.3253,"y":81.0933,"group":"group 1"},{"x":7.248,"y":132.5598,"group":"group 1"},{"x":8.1478,"y":27.8409,"group":"group 3"},{"x":6.9716,"y":-22.0497,"group":"group 3"},{"x":0.2425,"y":-79.9716,"group":"group 1"},{"x":3.213,"y":98.6473,"group":"group 1"},{"x":0.5308,"y":-85.5438,"group":"group 2"},{"x":5.3185,"y":1.5776,"group":"group 3"},{"x":9.0672,"y":304.428,"group":"group 3"},{"x":2.5451,"y":11.8706,"group":"group 3"},{"x":7.0998,"y":132.8174,"group":"group 3"},{"x":5.2286,"y":-14.7775,"group":"group 2"},{"x":0.0863,"y":-155.8024,"group":"group 3"},{"x":1.9475,"y":109.5262,"group":"group 1"},{"x":6.2054,"y":165.1241,"group":"group 1"},{"x":9.445,"y":360.9362,"group":"group 2"},{"x":3.5899,"y":-42.5037,"group":"group 3"},{"x":2.5347,"y":20.3554,"group":"group 2"},{"x":2.7302,"y":82.3466,"group":"group 2"},{"x":3.6318,"y":-10.6622,"group":"group 3"},{"x":6.3262,"y":87.7835,"group":"group 3"},{"x":7.7482,"y":21.1847,"group":"group 3"},{"x":6.711,"y":27.4605,"group":"group 2"},{"x":8.2919,"y":120.5505,"group":"group 1"},{"x":3.0582,"y":31.5244,"group":"group 2"},{"x":3.7789,"y":62.7967,"group":"group 1"},{"x":2.0883,"y":108.7493,"group":"group 3"},{"x":9.7546,"y":333.0125,"group":"group 3"},{"x":6.8388,"y":179.0434,"group":"group 1"},{"x":1.3324,"y":-135.0872,"group":"group 2"},{"x":3.3553,"y":134.0065,"group":"group 2"},{"x":1.5345,"y":119.3463,"group":"group 3"},{"x":4.8254,"y":44.2284,"group":"group 2"},{"x":9.8189,"y":309.5464,"group":"group 2"},{"x":4.7846,"y":49.7637,"group":"group 3"},{"x":1.4475,"y":-80.6493,"group":"group 1"},{"x":5.7272,"y":143.3858,"group":"group 1"},{"x":7.3321,"y":210.0113,"group":"group 1"},{"x":2.2124,"y":28.0535,"group":"group 2"},{"x":9.9749,"y":298.671,"group":"group 1"},{"x":5.0201,"y":-30.1775,"group":"group 2"},{"x":4.7448,"y":198.8992,"group":"group 3"},{"x":4.1104,"y":-76.0543,"group":"group 1"},{"x":1.2156,"y":-14.7394,"group":"group 3"},{"x":2.6877,"y":44.564,"group":"group 3"},{"x":7.2561,"y":167.5084,"group":"group 1"},{"x":8.7258,"y":205.4723,"group":"group 2"},{"x":6.2317,"y":6.5255,"group":"group 1"},{"x":1.7727,"y":-90.6107,"group":"group 3"},{"x":9.3149,"y":266.5969,"group":"group 1"},{"x":9.6344,"y":149.9815,"group":"group 2"},{"x":8.6082,"y":279.4059,"group":"group 1"},{"x":1.0726,"y":-52.6972,"group":"group 1"},{"x":9.843,"y":402.1405,"group":"group 3"},{"x":1.5852,"y":-37.1504,"group":"group 3"},{"x":9.5249,"y":311.9657,"group":"group 2"},{"x":8.9284,"y":140.0137,"group":"group 1"},{"x":3.5042,"y":-44.4756,"group":"group 1"},{"x":9.2041,"y":346.9741,"group":"group 1"},{"x":9.0163,"y":194.8099,"group":"group 3"},{"x":4.9707,"y":-11.5257,"group":"group 2"},{"x":7.5446,"y":236.0788,"group":"group 2"},{"x":0.8526,"y":-20.1829,"group":"group 1"},{"x":3.2751,"y":43.1731,"group":"group 3"},{"x":7.032,"y":135.1706,"group":"group 1"},{"x":3.2477,"y":149.7054,"group":"group 3"},{"x":0.2921,"y":-137.2948,"group":"group 1"},{"x":8.3942,"y":326.5445,"group":"group 1"},{"x":6.5685,"y":92.3232,"group":"group 3"},{"x":0.0315,"y":-87.4641,"group":"group 3"},{"x":8.1995,"y":252.0213,"group":"group 3"},{"x":2.9941,"y":-144.2693,"group":"group 3"},{"x":7.0606,"y":48.7119,"group":"group 1"},{"x":0.2902,"y":-13.4131,"group":"group 3"},{"x":4.1378,"y":66.0195,"group":"group 1"},{"x":0.1221,"y":-33.5307,"group":"group 3"},{"x":8.7297,"y":286.4539,"group":"group 2"},{"x":2.7856,"y":-12.4608,"group":"group 3"},{"x":4.3645,"y":64.2173,"group":"group 3"},{"x":0.2109,"y":74.0587,"group":"group 1"},{"x":8.2008,"y":211.5198,"group":"group 2"},{"x":0.6142,"y":95.6896,"group":"group 2"},{"x":9.6506,"y":331.0324,"group":"group 1"},{"x":0.2441,"y":-102.5501,"group":"group 3"},{"x":7.6222,"y":77.0404,"group":"group 2"},{"x":7.2438,"y":173.0458,"group":"group 2"},{"x":7.3664,"y":85.5676,"group":"group 3"},{"x":9.0511,"y":378.0037,"group":"group 2"},{"x":7.6071,"y":-38.5375,"group":"group 3"},{"x":1.4697,"y":-89.5441,"group":"group 3"},{"x":2.4283,"y":148.0333,"group":"group 3"},{"x":4.9121,"y":23.9139,"group":"group 3"},{"x":6.2296,"y":-2.2291,"group":"group 2"},{"x":1.689,"y":82.5961,"group":"group 1"},{"x":8.024,"y":40.7483,"group":"group 2"},{"x":3.112,"y":127.2583,"group":"group 1"},{"x":6.2983,"y":-23.4186,"group":"group 2"},{"x":7.0854,"y":193.5037,"group":"group 1"},{"x":0.415,"y":-89.7386,"group":"group 2"},{"x":2.5897,"y":19.8725,"group":"group 2"},{"x":0.4434,"y":-44.4674,"group":"group 1"},{"x":3.2005,"y":-78.5393,"group":"group 1"},{"x":9.0491,"y":178.9361,"group":"group 1"},{"x":3.4916,"y":-95.4597,"group":"group 3"},{"x":0.1626,"y":127.8352,"group":"group 3"},{"x":3.2353,"y":77.4257,"group":"group 3"},{"x":6.8344,"y":202.3569,"group":"group 2"},{"x":5.4742,"y":33.4236,"group":"group 2"},{"x":4.4144,"y":-167.1047,"group":"group 1"},{"x":5.6439,"y":106.7117,"group":"group 2"},{"x":1.9989,"y":57.9713,"group":"group 2"},{"x":3.265,"y":152.3362,"group":"group 1"},{"x":6.9887,"y":61.9043,"group":"group 3"},{"x":0.8996,"y":96.3712,"group":"group 3"},{"x":3.1876,"y":-82.2739,"group":"group 3"},{"x":0.3427,"y":52.6979,"group":"group 1"},{"x":4.6371,"y":48.6144,"group":"group 3"},{"x":6.7697,"y":214.3083,"group":"group 3"},{"x":2.9695,"y":-96.7446,"group":"group 2"},{"x":3.6816,"y":81.0893,"group":"group 2"},{"x":6.1486,"y":91.9551,"group":"group 2"},{"x":5.6726,"y":53.3356,"group":"group 2"},{"x":3.0237,"y":35.2014,"group":"group 2"},{"x":5.9755,"y":170.9988,"group":"group 3"},{"x":6.8583,"y":41.6304,"group":"group 1"},{"x":5.5321,"y":102.7111,"group":"group 1"},{"x":4.8113,"y":61.5925,"group":"group 2"},{"x":5.4571,"y":-108.6745,"group":"group 1"},{"x":2.4205,"y":-43.8031,"group":"group 3"},{"x":4.9326,"y":-42.7145,"group":"group 1"},{"x":9.0358,"y":245.1892,"group":"group 3"},{"x":5.0566,"y":5.7346,"group":"group 2"},{"x":1.0789,"y":8.0742,"group":"group 2"},{"x":7.8464,"y":100.0906,"group":"group 3"},{"x":0.6964,"y":-43.0469,"group":"group 1"},{"x":2.9975,"y":120.2605,"group":"group 1"},{"x":6.5908,"y":46.9502,"group":"group 1"},{"x":2.5817,"y":41.0879,"group":"group 3"},{"x":1.7494,"y":-29.5118,"group":"group 1"},{"x":5.8765,"y":168.0142,"group":"group 2"},{"x":5.2235,"y":79.5006,"group":"group 1"},{"x":6.6295,"y":-21.2934,"group":"group 2"},{"x":4.7348,"y":18.4201,"group":"group 3"},{"x":8.4796,"y":328.3131,"group":"group 3"},{"x":6.9292,"y":224.3846,"group":"group 2"},{"x":6.7626,"y":-22.6372,"group":"group 2"},{"x":9.2603,"y":252.4909,"group":"group 3"},{"x":7.1852,"y":113.0245,"group":"group 1"},{"x":1.6046,"y":32.3553,"group":"group 3"},{"x":8.9906,"y":201.6665,"group":"group 3"},{"x":4.8398,"y":177.6316,"group":"group 1"},{"x":8.7395,"y":269.9279,"group":"group 1"},{"x":6.3935,"y":44.1984,"group":"group 3"},{"x":5.1451,"y":-86.214,"group":"group 3"},{"x":3.9363,"y":35.3522,"group":"group 1"},{"x":7.9684,"y":149.4394,"group":"group 2"},{"x":8.3233,"y":286.2213,"group":"group 1"},{"x":6.414,"y":-9.5091,"group":"group 1"},{"x":5.4852,"y":-13.5517,"group":"group 2"},{"x":3.7499,"y":-4.6735,"group":"group 1"},{"x":0.2297,"y":-23.6311,"group":"group 3"},{"x":1.3884,"y":36.2688,"group":"group 3"},{"x":0.4032,"y":-75.3398,"group":"group 3"},{"x":7.9339,"y":36.7638,"group":"group 1"},{"x":2.6051,"y":71.6338,"group":"group 2"},{"x":4.9547,"y":49.1142,"group":"group 3"},{"x":0.8856,"y":79.6992,"group":"group 3"},{"x":0.7537,"y":22.5926,"group":"group 2"},{"x":1.1359,"y":-30.6749,"group":"group 3"},{"x":4.2417,"y":-54.5597,"group":"group 1"},{"x":7.9881,"y":302.9443,"group":"group 2"},{"x":2.7716,"y":146.4577,"group":"group 1"},{"x":9.6752,"y":247.8221,"group":"group 2"},{"x":7.3844,"y":233.3189,"group":"group 3"},{"x":7.4956,"y":-3.2397,"group":"group 3"},{"x":9.9709,"y":230.9283,"group":"group 2"},{"x":0.4639,"y":0.8442,"group":"group 1"},{"x":1.59,"y":66.4436,"group":"group 1"},{"x":9.9063,"y":236.6548,"group":"group 3"},{"x":3.9767,"y":27.414,"group":"group 1"},{"x":7.1504,"y":234.4303,"group":"group 1"},{"x":6.3607,"y":83.9958,"group":"group 3"},{"x":8.6672,"y":246.1361,"group":"group 3"},{"x":3.3607,"y":17.0356,"group":"group 2"},{"x":0.294,"y":110.404,"group":"group 1"},{"x":5.0893,"y":-38.2353,"group":"group 2"},{"x":5.1571,"y":110.0386,"group":"group 3"},{"x":2.0177,"y":-59.3852,"group":"group 1"},{"x":6.9289,"y":157.8074,"group":"group 1"},{"x":4.4457,"y":-15.0268,"group":"group 3"},{"x":5.0009,"y":65.3335,"group":"group 1"},{"x":9.3786,"y":258.7508,"group":"group 1"},{"x":1.002,"y":-149.8781,"group":"group 3"},{"x":8.4565,"y":373.7727,"group":"group 1"},{"x":2.0963,"y":96.0277,"group":"group 1"},{"x":1.7285,"y":-18.1061,"group":"group 2"},{"x":0.2727,"y":11.7664,"group":"group 2"},{"x":3.6222,"y":29.763,"group":"group 1"},{"x":8.0026,"y":119.3029,"group":"group 3"},{"x":8.3999,"y":210.0496,"group":"group 3"},{"x":4.0127,"y":-10.5231,"group":"group 2"},{"x":9.4984,"y":444.2657,"group":"group 3"},{"x":5.9862,"y":163.2665,"group":"group 1"},{"x":8.8508,"y":44.0191,"group":"group 2"}];
     </script>
 
-So far, so good – the data is in our browser. In theory, now we can
-include a `js` code block. It’s worth mentioning that, for me at least,
-this doesn’t work perfectly (I’m probably doing something wrong). I had
-to actually include this code in the html of this README (hence the
-doubling of the code).
+So far, so good – the data is in our browser, as you can see from this
+screenshot (or just open the inspector on this page):
 
-``` js
-var point_vals = d3.select("#viz")
-  .append("p")
-  .attr("align", "center")
-  .text("Mouseover some data!");
+![](https://i.imgur.com/EtoGoYn.png)
 
-//Get how wide our page is in pixels so we can draw our plot in it
-var page_width = $("#javascript").width();
-console.log(page_width)
-// set the dimensions and margins of the graph
-var margin = 30,
-    width = page_width - 2*margin,
-    height = page_width*0.8 - 2*margin;
-    
-// Find max data values
-var x_extent = d3.extent(data, d => d.x);
-var y_extent = d3.extent(data, d => d.y);
-
-// Set the scales 
-var x = d3.scaleLinear()
-  .domain(x_extent)
-  .range([0, width]);
-  
-var y = d3.scaleLinear()
-  .domain(y_extent)
-  .range([height, 0]);
-
-//Set up our SVG element
-var svg = d3.select("#viz").append("svg")
-    .attr("width", width + 2*margin)
-    .attr("height", height + 2*margin)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin + "," + margin + ")");
-
-var bounce_select = d3.transition()
-    .duration(1000)
-    .ease(d3.easeElastic.period(0.4));
-    
-// Add the scatterplot
-svg.selectAll(".dots")
-    .data(data)
-  .enter().append("circle")
-    .attr("class", "dots")
-    .attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
-    .attr("fill-opacity", 0.3)
-    .attr("r", 5)
-    .attr("cx", d => x(d.x) )
-    .attr("cy", d => y(d.y) )
-    .on("mouseover", function(d){
-       d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
-       d3.select(this)
-        .transition(bounce_select)
-        .attr("r", 10);
-      
-       point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
-    });
-    
-// Draw the axes    
-// Add the X Axis
-svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
-
-// Add the Y Axis
-svg.append("g")
-    .call(d3.axisLeft(y));
-```
-
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+In theory, now we can include a `js` code block. It’s worth mentioning
+that, for me at least, this doesn’t work perfectly (I’m probably doing
+something wrong). I had to actually include the Javascript code directly
+into the html of this README, using `<script>` tags. Still,
+making/parsing the data in R and then passing it on to d3 is pretty
+sweet.
 
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 
@@ -647,73 +590,6 @@ svg.append("g")
 <div id="viz">
 
 </div>
-
-<pre class="js"><code>var point_vals = d3.select("#viz")
-.append("p")
-.attr("align", "center")
-.text("Mouseover some data!");
-
-//Get how wide our page is in pixels so we can draw our plot in it
-var page_width = $("#javascript").width();
-
-// set the dimensions and margins of the graph
-var margin = 30,
-width = page_width - 2*margin,
-height = page_width*0.8 - 2*margin;
-
-// Find max data values
-var x_extent = d3.extent(data, d => d.x);
-var y_extent = d3.extent(data, d => d.y);
-
-// Set the scales 
-var x = d3.scaleLinear()
-.domain(x_extent)
-.range([0, width]);
-
-var y = d3.scaleLinear()
-.domain(y_extent)
-.range([height, 0]);
-
-//Set up our SVG element
-var svg = d3.select("#viz").append("svg")
-.attr("width", width + 2*margin)
-.attr("height", height + 2*margin)
-.append("g")
-.attr("transform",
-      "translate(" + margin + "," + margin + ")");
-
-var bounce_select = d3.transition()
-.duration(1000)
-.ease(d3.easeElastic.period(0.4));
-
-// Add the scatterplot
-svg.selectAll(".dots")
-.data(data)
-.enter().append("circle")
-.attr("class", "dots")
-.attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
-.attr("fill-opacity", 0.3)
-.attr("r", 5)
-.attr("cx", d => x(d.x) )
-.attr("cy", d => y(d.y) )
-.on("mouseover", function(d){
-  d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
-  d3.select(this)
-  .transition(bounce_select)
-  .attr("r", 10);
-  
-  point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
-});
-
-// Draw the axes    
-// Add the X Axis
-svg.append("g")
-.attr("transform", "translate(0," + height + ")")
-.call(d3.axisBottom(x));
-
-// Add the Y Axis
-svg.append("g")
-.call(d3.axisLeft(y));</code></pre>
 
 <script type="text/javascript">
   var point_vals = d3.select("#viz")
@@ -785,6 +661,273 @@ svg.append("g")
 </script>
 
 </div>
+
+Here’s the code that was used:
+
+``` js
+  var point_vals = d3.select("#viz")
+.append("p")
+.attr("align", "center")
+.text("Mouseover some data!");
+
+//Get how wide our page is in pixels so we can draw our plot in it
+var page_width = $("#javascript").width();
+
+// set the dimensions and margins of the graph
+var margin = 30,
+width = page_width - 2*margin,
+height = page_width*0.8 - 2*margin;
+
+// Find max data values
+var x_extent = d3.extent(data, d => d.x);
+var y_extent = d3.extent(data, d => d.y);
+
+// Set the scales 
+var x = d3.scaleLinear()
+.domain(x_extent)
+.range([0, width]);
+
+var y = d3.scaleLinear()
+.domain(y_extent)
+.range([height, 0]);
+
+//Set up our SVG element
+var svg = d3.select("#viz").append("svg")
+.attr("width", width + 2*margin)
+.attr("height", height + 2*margin)
+.append("g")
+.attr("transform",
+      "translate(" + margin + "," + margin + ")");
+
+var bounce_select = d3.transition()
+.duration(1000)
+.ease(d3.easeElastic.period(0.4));
+
+// Add the scatterplot
+svg.selectAll(".dots")
+.data(data)
+.enter().append("circle")
+.attr("class", "dots")
+.attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
+.attr("fill-opacity", 0.3)
+.attr("r", 5)
+.attr("cx", d => x(d.x) )
+.attr("cy", d => y(d.y) )
+.on("mouseover", function(d){
+  d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
+  d3.select(this)
+  .transition(bounce_select)
+  .attr("r", 10);
+  
+  point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
+});
+
+// Draw the axes    
+// Add the X Axis
+svg.append("g")
+.attr("transform", "translate(0," + height + ")")
+.call(d3.axisBottom(x));
+
+// Add the Y Axis
+svg.append("g")
+.call(d3.axisLeft(y));
+```
+
+</details>
+
+## Miscellaneous :pushpin:
+
+### `%ni%`
+
+I often find the syntax for negating `%in%` to be weird. For example:
+
+<details>
+
+<summary>Click to see code</summary>
+
+``` r
+library(dplyr)
+library(tibble)
+mtcars %>% 
+  rownames_to_column(var = "cars") %>% 
+  filter(!cars %in% c("Toyota Corolla", "Honda Civic", "Datsun 710"))
+#>                   cars  mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+#> 1            Mazda RX4 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+#> 2        Mazda RX4 Wag 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+#> 3       Hornet 4 Drive 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+#> 4    Hornet Sportabout 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+#> 5              Valiant 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+#> 6           Duster 360 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+#> 7            Merc 240D 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+#> 8             Merc 230 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+#> 9             Merc 280 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+#> 10           Merc 280C 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+#> 11          Merc 450SE 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+#> 12          Merc 450SL 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+#> 13         Merc 450SLC 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+#> 14  Cadillac Fleetwood 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+#> 15 Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+#> 16   Chrysler Imperial 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+#> 17            Fiat 128 32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+#> 18       Toyota Corona 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+#> 19    Dodge Challenger 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+#> 20         AMC Javelin 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+#> 21          Camaro Z28 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+#> 22    Pontiac Firebird 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
+#> 23           Fiat X1-9 27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+#> 24       Porsche 914-2 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+#> 25        Lotus Europa 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+#> 26      Ford Pantera L 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+#> 27        Ferrari Dino 19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+#> 28       Maserati Bora 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+#> 29          Volvo 142E 21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
+```
+
+‘Not-cars-in-list’ is defo weird for me. So I usually use `Negate()`:
+
+``` r
+library(dplyr)
+library(tibble)
+'%ni%' <- Negate('%in%')
+mtcars %>% 
+  rownames_to_column(var = "cars") %>% 
+  filter(cars %ni% c("Toyota Corolla", "Honda Civic", "Datsun 710"))
+#>                   cars  mpg cyl  disp  hp drat    wt  qsec vs am gear carb
+#> 1            Mazda RX4 21.0   6 160.0 110 3.90 2.620 16.46  0  1    4    4
+#> 2        Mazda RX4 Wag 21.0   6 160.0 110 3.90 2.875 17.02  0  1    4    4
+#> 3       Hornet 4 Drive 21.4   6 258.0 110 3.08 3.215 19.44  1  0    3    1
+#> 4    Hornet Sportabout 18.7   8 360.0 175 3.15 3.440 17.02  0  0    3    2
+#> 5              Valiant 18.1   6 225.0 105 2.76 3.460 20.22  1  0    3    1
+#> 6           Duster 360 14.3   8 360.0 245 3.21 3.570 15.84  0  0    3    4
+#> 7            Merc 240D 24.4   4 146.7  62 3.69 3.190 20.00  1  0    4    2
+#> 8             Merc 230 22.8   4 140.8  95 3.92 3.150 22.90  1  0    4    2
+#> 9             Merc 280 19.2   6 167.6 123 3.92 3.440 18.30  1  0    4    4
+#> 10           Merc 280C 17.8   6 167.6 123 3.92 3.440 18.90  1  0    4    4
+#> 11          Merc 450SE 16.4   8 275.8 180 3.07 4.070 17.40  0  0    3    3
+#> 12          Merc 450SL 17.3   8 275.8 180 3.07 3.730 17.60  0  0    3    3
+#> 13         Merc 450SLC 15.2   8 275.8 180 3.07 3.780 18.00  0  0    3    3
+#> 14  Cadillac Fleetwood 10.4   8 472.0 205 2.93 5.250 17.98  0  0    3    4
+#> 15 Lincoln Continental 10.4   8 460.0 215 3.00 5.424 17.82  0  0    3    4
+#> 16   Chrysler Imperial 14.7   8 440.0 230 3.23 5.345 17.42  0  0    3    4
+#> 17            Fiat 128 32.4   4  78.7  66 4.08 2.200 19.47  1  1    4    1
+#> 18       Toyota Corona 21.5   4 120.1  97 3.70 2.465 20.01  1  0    3    1
+#> 19    Dodge Challenger 15.5   8 318.0 150 2.76 3.520 16.87  0  0    3    2
+#> 20         AMC Javelin 15.2   8 304.0 150 3.15 3.435 17.30  0  0    3    2
+#> 21          Camaro Z28 13.3   8 350.0 245 3.73 3.840 15.41  0  0    3    4
+#> 22    Pontiac Firebird 19.2   8 400.0 175 3.08 3.845 17.05  0  0    3    2
+#> 23           Fiat X1-9 27.3   4  79.0  66 4.08 1.935 18.90  1  1    4    1
+#> 24       Porsche 914-2 26.0   4 120.3  91 4.43 2.140 16.70  0  1    5    2
+#> 25        Lotus Europa 30.4   4  95.1 113 3.77 1.513 16.90  1  1    5    2
+#> 26      Ford Pantera L 15.8   8 351.0 264 4.22 3.170 14.50  0  1    5    4
+#> 27        Ferrari Dino 19.7   6 145.0 175 3.62 2.770 15.50  0  1    5    6
+#> 28       Maserati Bora 15.0   8 301.0 335 3.54 3.570 14.60  0  1    5    8
+#> 29          Volvo 142E 21.4   4 121.0 109 4.11 2.780 18.60  1  1    4    2
+```
+
+[Source](https://stackoverflow.com/questions/5831794/opposite-of-in)
+
+</details>
+
+### Getting daily builds of Rstudio
+
+Often, the daily builds of RStudio have some interesting things
+happening (although, of course, they might be a bit buggy). Using a
+combination of scripts from [Bob
+Rudis](https://bl.ocks.org/hrbrmstr/15375ec7a873d17ea5e2) and [Aron
+Atkins](https://gist.github.com/aronatkins/ac3934e08d2961285bef), with a
+few adjustments, we can download and install the latest build at a
+certain time each day (I’ve stuck with Bob’s choice of 7:30 am). This is
+for Mac OS only (Aron’s original script also allows for Ubuntu).  
+
+<details>
+
+<summary>Click to see code</summary>
+
+First, create a preference list file (`.plist`) – I’ve called it
+‘UpdateRstudio.plist’ (You can do this on Terminal in a mac with
+`touch UpdateRstudio.plist`). The content of this is as follows:
+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>UpdateRStudio</string>
+        <key>Program</key>
+        <string>/usr/local/bin/rsupd</string>
+        <key>StartCalendarInterval</key>
+        <dict>
+            <key>Hour</key>
+            <integer>7</integer>
+            <key>Minute</key>
+            <integer>30</integer>
+        </dict>
+    </dict>
+    </plist>
+
+If you’d like to update at a different time, you can change the
+`<key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer>`
+part. This file goes in `/Library/LaunchAgents/`.  
+Also, notice that the `.plist` is directed towards
+`/usr/local/bin/rsupd` – that is the location of the next file we’re
+going to make. It is:
+
+``` bash
+#!/bin/bash
+
+set -e
+
+install_macos_daily() {
+    REDIRECT_URL="https://www.rstudio.org/download/latest/daily/desktop/mac/RStudio-latest.dmg"
+    echo "Discovering daily build from: ${REDIRECT_URL}"
+
+    # Perform a HEAD request to find the redirect target. We use the name of the
+    # file to derive the mounted volume name.
+    RELEASE_URL=$(curl -s -L -I -o /dev/null -w '%{url_effective}' "${REDIRECT_URL}")
+    if [ "${RELEASE_URL}" ==  "" ]; then
+        echo "Could not extract daily build URL from listing; maybe rstudio.org is having problems?"
+        echo "Check: ${DAILY_LIST_URL}"
+        exit 1
+    fi
+
+    echo "Downloading daily build from: ${RELEASE_URL}"
+
+    cd /tmp
+
+    TARGET=$(basename "${RELEASE_URL}")
+    # Volume name mirrors the DMG filename without extension.
+    # Simpler than parsing hdiutil output.
+    VOLUME_NAME=$(basename "${TARGET}" .dmg)
+    VOLUME_MOUNT="/Volumes/${VOLUME_NAME}"
+
+    curl -L -o "${TARGET}" "${RELEASE_URL}"
+
+    hdiutil attach -quiet "${TARGET}"
+
+    # Remove any prior installation.
+    rm -rf /Applications/RStudio.app
+    cp -R "${VOLUME_MOUNT}/RStudio.app" /Applications
+
+    hdiutil detach -quiet "${VOLUME_MOUNT}"
+
+    rm "${TARGET}"
+
+    echo "Installed ${VOLUME_NAME} to /Applications"
+}
+
+if [[ `uname -s` = "Darwin" ]]; then
+    install_macos_daily
+else
+    echo "This script only works on OSX/macOS."
+    exit 1
+fi
+```
+
+As I said, this is saved as rsupd, into `/usr/local/bin`. We then make
+it an executable with `chmod 755 /usr/local/bin/rsupd`. Then you load
+the preference list with `launchctl load -w
+/Library/LaunchAgents/UpdateRStudio.plist` (use `unload` here when you
+want to stop it). Voilà, fresh RStudio for thee everyday.
 
 </details>
 

@@ -69,6 +69,7 @@ old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", v
       }
     }
 ```
+I'm not sure this is necessary anymore, the last time I updated R, all my packages were still installed. Anyway.  
 </details>
 ## Tables :page_with_curl:
 
@@ -280,7 +281,7 @@ ggplot(df, aes(x = x, y = y)) +
 First off, an informative [SO discussion](https://stackoverflow.com/questions/2908822/speed-up-the-loop-operation-in-r) on the topic. Take-away: use specialized libraries (such as `data.table` and `Rccp`) if you *really* need speed.  
 
 ### For Loops
-*Sometimes* `for()` loops may be necessary in R. They get a bad reputation, but it's not totally deserved (and the `apply()` family of functions don't necessarily speed things up, they're just wrappers for `for()` loops). This is old news in R, so let's dig out an old [bookmark of mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html) on the subject, by Utkarsh Upadhyay. (From 2012!! Wow. [Another interesting article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the subject, by Noam Ross, led me to it.) What's happening here? We're *pre-allocating* vectors of the size we need before we run our for loops. Makes all the difference
+*Sometimes* `for()` loops may be necessary in R. They get a bad reputation, but it's not totally deserved (and the `apply()` family of functions don't necessarily speed things up, they're just wrappers for `for()` loops). This is old news in R, so let's dig out an old [bookmark of mine](http://musicallyut.blogspot.com.br/2012/07/pre-allocate-your-vectors.html) on the subject, by Utkarsh Upadhyay. (From 2012!! Wow. [Another interesting article](http://www.noamross.net/blog/2013/4/25/faster-talk.html) on the subject, by Noam Ross, led me to it.) What's happening here? We're *pre-allocating* vectors of the size we need before we run our for loops. Makes all the difference:  
 
 <details>
 <summary>Click to see code</summary>
@@ -331,7 +332,7 @@ ggplot(x, aes(x = timesSeq, group = 1)) +
   geom_line(aes(y = f1.prof), colour = "#ec0b43") +
   geom_line(aes(y = f2.prof), colour = "#58355e") +
   ylab(NULL) + theme_minimal() + xlab("Sequence") +
-  annotate("label", x = 7500, y = 0.4, label = "f1.prof") 
+  labs(subtitle = "The red line is f1.prof!")
 
 ```
 
@@ -363,37 +364,19 @@ I've seen this in a few places, but the most recent I remember was from [Colin F
 
 ## RMarkdown tricks :scroll:
 
+You can save a lot of time by setting `cache = TRUE` in the knitr options. I usually set `warning` and `message` to `FALSE` too, which avoids package messages (like those from dplyr, for example) printing in your RMarkdown document.  
 
-### R <--> Python :snake:
-
-Recently it's been noticed by some [sharp]() observers that you can run Python and R in the same RMarkdown document and that the objects from one are available to the other. For example:  
-```{r}
-library(reticulate)
+```{r, eval = FALSE}
+knitr::opts_chunk$set(
+  cache = TRUE,
+  message = FALSE, 
+  warning = FALSE
+)
 ```
-
-```{python}
-import pandas
-flights = pandas.read_csv("flights.csv")
-flights = flights[flights['dest'] == "ORD"]
-flights = flights[['carrier', 'dep_delay', 'arr_delay']]
-flights = flights.dropna()
-flights.describe()
-```
-
-```{r}
-library(ggplot2)
-ggplot(py$flights, aes(carrier, arr_delay)) +
-  geom_point() +
-  geom_jitter()
-```
-
-:heart_eyes:  
-[Source](https://twitter.com/benomial/status/978462177601490945?s=08)
-<div id="did-it-work" class="section level2">
 
 ### JavaScript
 
-If you use `results = 'asis'` in the head of your code chunk, i.e. ` ```{r results = 'asis'} `, RMarkdown will keep the result of the chunk 'alive', so to speak, in the document, for you to use. A good example of this is with JavaScript, which you can use to make a nifty [d3]() plot. A few bloggers have noted this, although I think the first was a blogger named [Alice](https://towardsdatascience.com/getting-r-and-d3-js-to-play-nicely-in-r-markdown-270e302a52d3). Here I'll use the example given by [Nick Strayer](http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/). First we save our data to the JSON format:     
+If you use `results = 'asis'` in the head of your code chunk, i.e. ` ```{r results = 'asis'} `, RMarkdown will keep the result of the chunk 'alive', so to speak, in the document, for you to use. A good example of this is with JavaScript, which you can use to make a nifty [d3](https://d3js.org/) plot. A few bloggers have noted this, although I think the first was a blogger named [Alice](https://towardsdatascience.com/getting-r-and-d3-js-to-play-nicely-in-r-markdown-270e302a52d3). Here I'll use the example given by [Nick Strayer](http://livefreeordichotomize.com/2017/01/24/custom-javascript-visualizations-in-rmarkdown/). First we save our data to the JSON format:     
 <details>
 <summary>Click to see code</summary>
 ```{r results='asis'}
@@ -419,151 +402,18 @@ random_data <- data_frame(x = runif(n)*10) %>%
 send_df_to_js(random_data)
 ```
 
-So far, so good -- the data is in our browser. In theory, now we can include a `js` code block. It's worth mentioning that, for me at least, this doesn't work perfectly (I'm probably doing something wrong). I had to actually include this code in the html of this README (hence the doubling of the code).
+So far, so good -- the data is in our browser, as you can see from this screenshot (or just open the inspector on this page):
 
-```{js}
-var point_vals = d3.select("#viz")
-  .append("p")
-  .attr("align", "center")
-  .text("Mouseover some data!");
-
-//Get how wide our page is in pixels so we can draw our plot in it
-var page_width = $("#javascript").width();
-console.log(page_width)
-// set the dimensions and margins of the graph
-var margin = 30,
-    width = page_width - 2*margin,
-    height = page_width*0.8 - 2*margin;
-    
-// Find max data values
-var x_extent = d3.extent(data, d => d.x);
-var y_extent = d3.extent(data, d => d.y);
-
-// Set the scales 
-var x = d3.scaleLinear()
-  .domain(x_extent)
-  .range([0, width]);
-  
-var y = d3.scaleLinear()
-  .domain(y_extent)
-  .range([height, 0]);
-
-//Set up our SVG element
-var svg = d3.select("#viz").append("svg")
-    .attr("width", width + 2*margin)
-    .attr("height", height + 2*margin)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin + "," + margin + ")");
-
-var bounce_select = d3.transition()
-    .duration(1000)
-    .ease(d3.easeElastic.period(0.4));
-    
-// Add the scatterplot
-svg.selectAll(".dots")
-    .data(data)
-  .enter().append("circle")
-    .attr("class", "dots")
-    .attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
-    .attr("fill-opacity", 0.3)
-    .attr("r", 5)
-    .attr("cx", d => x(d.x) )
-    .attr("cy", d => y(d.y) )
-    .on("mouseover", function(d){
-       d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
-       d3.select(this)
-        .transition(bounce_select)
-        .attr("r", 10);
-      
-       point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
-    });
-    
-// Draw the axes    
-// Add the X Axis
-svg.append("g")
-    .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
-
-// Add the Y Axis
-svg.append("g")
-    .call(d3.axisLeft(y));
-```
+![](https://i.imgur.com/EtoGoYn.png)
 
 
-<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+In theory, now we can include a `js` code block. It's worth mentioning that, for me at least, this doesn't work perfectly (I'm probably doing something wrong). I had to actually include the Javascript code directly into the html of this README, using `<script>` tags. Still, making/parsing the data in R and then passing it on to d3 is pretty sweet.  
+
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<div id="viz">
 
-</div>
-<pre class="js"><code>var point_vals = d3.select("#viz")
-.append("p")
-.attr("align", "center")
-.text("Mouseover some data!");
-
-//Get how wide our page is in pixels so we can draw our plot in it
-var page_width = $("#javascript").width();
-
-// set the dimensions and margins of the graph
-var margin = 30,
-width = page_width - 2*margin,
-height = page_width*0.8 - 2*margin;
-
-// Find max data values
-var x_extent = d3.extent(data, d => d.x);
-var y_extent = d3.extent(data, d => d.y);
-
-// Set the scales 
-var x = d3.scaleLinear()
-.domain(x_extent)
-.range([0, width]);
-
-var y = d3.scaleLinear()
-.domain(y_extent)
-.range([height, 0]);
-
-//Set up our SVG element
-var svg = d3.select("#viz").append("svg")
-.attr("width", width + 2*margin)
-.attr("height", height + 2*margin)
-.append("g")
-.attr("transform",
-      "translate(" + margin + "," + margin + ")");
-
-var bounce_select = d3.transition()
-.duration(1000)
-.ease(d3.easeElastic.period(0.4));
-
-// Add the scatterplot
-svg.selectAll(".dots")
-.data(data)
-.enter().append("circle")
-.attr("class", "dots")
-.attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
-.attr("fill-opacity", 0.3)
-.attr("r", 5)
-.attr("cx", d => x(d.x) )
-.attr("cy", d => y(d.y) )
-.on("mouseover", function(d){
-  d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
-  d3.select(this)
-  .transition(bounce_select)
-  .attr("r", 10);
-  
-  point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
-});
-
-// Draw the axes    
-// Add the X Axis
-svg.append("g")
-.attr("transform", "translate(0," + height + ")")
-.call(d3.axisBottom(x));
-
-// Add the Y Axis
-svg.append("g")
-.call(d3.axisLeft(y));</code></pre>
-  <script type="text/javascript">
+<div id="viz"></div>
+<script type="text/javascript">
   var point_vals = d3.select("#viz")
 .append("p")
 .attr("align", "center")
@@ -632,11 +482,84 @@ svg.append("g")
 .call(d3.axisLeft(y));
 </script>
 </div>
+
+Here's the code that was used: 
+```{js eval = FALSE}
+  var point_vals = d3.select("#viz")
+.append("p")
+.attr("align", "center")
+.text("Mouseover some data!");
+
+//Get how wide our page is in pixels so we can draw our plot in it
+var page_width = $("#javascript").width();
+
+// set the dimensions and margins of the graph
+var margin = 30,
+width = page_width - 2*margin,
+height = page_width*0.8 - 2*margin;
+
+// Find max data values
+var x_extent = d3.extent(data, d => d.x);
+var y_extent = d3.extent(data, d => d.y);
+
+// Set the scales 
+var x = d3.scaleLinear()
+.domain(x_extent)
+.range([0, width]);
+
+var y = d3.scaleLinear()
+.domain(y_extent)
+.range([height, 0]);
+
+//Set up our SVG element
+var svg = d3.select("#viz").append("svg")
+.attr("width", width + 2*margin)
+.attr("height", height + 2*margin)
+.append("g")
+.attr("transform",
+      "translate(" + margin + "," + margin + ")");
+
+var bounce_select = d3.transition()
+.duration(1000)
+.ease(d3.easeElastic.period(0.4));
+
+// Add the scatterplot
+svg.selectAll(".dots")
+.data(data)
+.enter().append("circle")
+.attr("class", "dots")
+.attr("fill", d => d.group === "group 1"? "steelblue":"orangered")
+.attr("fill-opacity", 0.3)
+.attr("r", 5)
+.attr("cx", d => x(d.x) )
+.attr("cy", d => y(d.y) )
+.on("mouseover", function(d){
+  d3.selectAll(".dots").attr("r", 5) //make sure all the dots are small
+  d3.select(this)
+  .transition(bounce_select)
+  .attr("r", 10);
+  
+  point_vals.text("X:" + d.x + " Y:" + d.y) //change the title of the graph to the datapoint
+});
+
+// Draw the axes    
+// Add the X Axis
+svg.append("g")
+.attr("transform", "translate(0," + height + ")")
+.call(d3.axisBottom(x));
+
+// Add the Y Axis
+svg.append("g")
+.call(d3.axisLeft(y));
+```
 </details>
 
-## Miscellaneous :control_knobs:
+## Miscellaneous :pushpin:
 
+### `%ni%`
 I often find the syntax for negating `%in%` to be weird. For example:
+<details>
+<summary>Click to see code</summary>
 
 ```{r}
 library(dplyr)
@@ -657,6 +580,93 @@ mtcars %>%
   filter(cars %ni% c("Toyota Corolla", "Honda Civic", "Datsun 710"))
 ```
 [Source](https://stackoverflow.com/questions/5831794/opposite-of-in)
+</details>
+
+### Getting daily builds of Rstudio
+
+Often, the daily builds of RStudio have some interesting things happening (although, of course, they might be a bit buggy). Using a combination of scripts from [Bob Rudis](https://bl.ocks.org/hrbrmstr/15375ec7a873d17ea5e2) and [Aron Atkins](https://gist.github.com/aronatkins/ac3934e08d2961285bef), with a few adjustments, we can download and install the latest build at a certain time each day (I've stuck with Bob's choice of 7:30 am). This is for Mac OS only (Aron's original script also allows for Ubuntu).  
+<details>
+<summary>Click to see code</summary>
+
+First, create a preference list file (`.plist`) -- I've called it 'UpdateRstudio.plist' (You can do this on Terminal in a mac with `touch UpdateRstudio.plist`). The content of this is as follows: 
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>UpdateRStudio</string>
+	<key>Program</key>
+	<string>/usr/local/bin/rsupd</string>
+	<key>StartCalendarInterval</key>
+	<dict>
+		<key>Hour</key>
+		<integer>7</integer>
+		<key>Minute</key>
+		<integer>30</integer>
+	</dict>
+</dict>
+</plist>
+```
+
+If you'd like to update at a different time, you can change the `<key>Hour</key><integer>7</integer><key>Minute</key><integer>30</integer>` part. This file goes in `/Library/LaunchAgents/`.  
+Also, notice that the `.plist` is directed towards `/usr/local/bin/rsupd` -- that is the location of the next file we're going to make. It is:  
+
+```{bash eval = FALSE}
+#!/bin/bash
+
+set -e
+
+install_macos_daily() {
+    REDIRECT_URL="https://www.rstudio.org/download/latest/daily/desktop/mac/RStudio-latest.dmg"
+    echo "Discovering daily build from: ${REDIRECT_URL}"
+
+    # Perform a HEAD request to find the redirect target. We use the name of the
+    # file to derive the mounted volume name.
+    RELEASE_URL=$(curl -s -L -I -o /dev/null -w '%{url_effective}' "${REDIRECT_URL}")
+    if [ "${RELEASE_URL}" ==  "" ]; then
+        echo "Could not extract daily build URL from listing; maybe rstudio.org is having problems?"
+        echo "Check: ${DAILY_LIST_URL}"
+        exit 1
+    fi
+
+    echo "Downloading daily build from: ${RELEASE_URL}"
+
+    cd /tmp
+
+    TARGET=$(basename "${RELEASE_URL}")
+    # Volume name mirrors the DMG filename without extension.
+    # Simpler than parsing hdiutil output.
+    VOLUME_NAME=$(basename "${TARGET}" .dmg)
+    VOLUME_MOUNT="/Volumes/${VOLUME_NAME}"
+
+    curl -L -o "${TARGET}" "${RELEASE_URL}"
+
+    hdiutil attach -quiet "${TARGET}"
+
+    # Remove any prior installation.
+    rm -rf /Applications/RStudio.app
+    cp -R "${VOLUME_MOUNT}/RStudio.app" /Applications
+
+    hdiutil detach -quiet "${VOLUME_MOUNT}"
+
+    rm "${TARGET}"
+
+    echo "Installed ${VOLUME_NAME} to /Applications"
+}
+
+if [[ `uname -s` = "Darwin" ]]; then
+    install_macos_daily
+else
+    echo "This script only works on OSX/macOS."
+    exit 1
+fi
+```
+
+As I said, this is saved as rsupd, into `/usr/local/bin`. We then make it an executable with `chmod 755 /usr/local/bin/rsupd`. Then you load the preference list with `launchctl load -w /Library/LaunchAgents/UpdateRStudio.plist` (use `unload` here when you want to stop it). Voilà, fresh RStudio for thee everyday.    
+
+</details>
 
 ## RStudio tricks :computer:
 
