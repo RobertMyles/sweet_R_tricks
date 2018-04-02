@@ -65,7 +65,9 @@ lapply(packages, library, character.only = TRUE)
 
 ```
 
-This code loads as many packages as you put in `packages`. They need to be installed first, of course!  
+This code loads as many packages as you put in `packages`. They need to be installed first, of course!    
+
+You can of course do something similar with installing packages, for example `lapply(pkgs, install.packages)`, where pkgs is a character vector of package names.  
 
 ### Saving and re-installing old packages on a new version of R  
 

@@ -25,12 +25,12 @@ head(senate_nominal_votes)
 #> # A tibble: 6 x 9
 #>   vote_date           bill_id bill    legislature senator_id senator_name 
 #>   <dttm>              <chr>   <chr>   <chr>       <chr>      <chr>        
-#> 1 1991-06-06 00:00:00 19615   PLC:19… 49          31         Guilherme Pa…
-#> 2 1991-06-06 00:00:00 19615   PLC:19… 49          47         Jose Sarney  
-#> 3 1991-06-06 00:00:00 19615   PLC:19… 49          82         Amazonino Me…
-#> 4 1991-06-06 00:00:00 19615   PLC:19… 49          33         Humberto Luc…
-#> 5 1991-06-06 00:00:00 19615   PLC:19… 49          79         Valmir Campe…
-#> 6 1991-06-06 00:00:00 19615   PLC:19… 49          84         Antonio Mariz
+#> 1 1991-06-06 00:00:00 19615   PLC:19 49          31         Guilherme Pa
+#> 2 1991-06-06 00:00:00 19615   PLC:19 49          47         Jose Sarney  
+#> 3 1991-06-06 00:00:00 19615   PLC:19 49          82         Amazonino Me
+#> 4 1991-06-06 00:00:00 19615   PLC:19 49          33         Humberto Luc
+#> 5 1991-06-06 00:00:00 19615   PLC:19 49          79         Valmir Campe
+#> 6 1991-06-06 00:00:00 19615   PLC:19 49          84         Antonio Mariz
 #> # ... with 3 more variables: senator_vote <chr>, senator_party <chr>,
 #> #   senator_state <chr>
 save(list = ls(), file = "sen.Rda")
@@ -79,6 +79,10 @@ lapply(packages, library, character.only = TRUE)
 
 This code loads as many packages as you put in `packages`. They need to
 be installed first, of course\!
+
+You can of course do something similar with installing packages, for
+example `lapply(pkgs, install.packages)`, where pkgs is a character
+vector of package names.
 
 ### Saving and re-installing old packages on a new version of R
 
@@ -947,7 +951,7 @@ As I said, this is saved as rsupd, into `/usr/local/bin`. We then make
 it an executable with `chmod 755 /usr/local/bin/rsupd`. Then you load
 the preference list with `launchctl load -w
 /Library/LaunchAgents/UpdateRStudio.plist` (use `unload` here when you
-want to stop it). Voilà, fresh RStudio for thee everyday.
+want to stop it). VoilÃ , fresh RStudio for thee everyday.
 
 </details>
 
