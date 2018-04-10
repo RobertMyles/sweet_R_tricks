@@ -609,11 +609,10 @@ sweet.
 
 </div>
 
+<div>
+
 <script type="text/javascript">
-  var point_vals = d3.select("#viz")
-.append("p")
-.attr("align", "center")
-.text("Mouseover some data!");
+var point_vals = d3.select("#viz").append("p").attr("align", "center").text("Mouseover some data!");
 
 //Get how wide our page is in pixels so we can draw our plot in it
 var page_width = $("#javascript").width();
