@@ -418,7 +418,7 @@ n <- 300
 random_data <- data_frame(x = runif(n)*10) %>% 
   mutate(y = 0.5*x^3 - 1.3*x^2 + rnorm(n, mean = 0, sd = 80),
          group = paste("group", sample(c(1,2,3), n, replace = T)))
-
+send_df_to_js(random_data)
 ```
 
 So far, so good -- the data is in our browser, as you can see from this screenshot (or just open the inspector on this page):
@@ -431,13 +431,15 @@ In theory, now we can include a `js` code block. It's worth mentioning that, for
 <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 
-<div id="viz"></div>
-<div>
-<script type="text/javascript">
-var point_vals = d3.select("#viz").append("p").attr("align", "center").text("Mouseover some data!");
+<div id="viz"></div> 
+```{js}
+var point_vals = d3.select("#viz")
+.append("p")
+.attr("align", "center")
+.text("Mouseover some data!");
 
 //Get how wide our page is in pixels so we can draw our plot in it
-var page_width = $("#javascript").width();
+var page_width = $("#cbi14").width();
 
 // set the dimensions and margins of the graph
 var margin = 30,
@@ -497,11 +499,11 @@ svg.append("g")
 // Add the Y Axis
 svg.append("g")
 .call(d3.axisLeft(y));
-</script>
-</div>
+```
+
 
 Here's the code that was used: 
-```{js eval = FALSE}
+```
   var point_vals = d3.select("#viz")
 .append("p")
 .attr("align", "center")
