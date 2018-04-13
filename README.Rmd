@@ -423,24 +423,9 @@ our_data <- data_frame(
 send_df_to_js(our_data)
 ```
 
-So far, so good -- the data is in our browser, as you can see from opening the inspector on this page, going to the console, and typing `data` (since it's a JavaScript variable, defined with `var = data`).   
-<script src="//d3js.org/d3.v4.min.js"></script>
+So far, so good -- the data is in our browser, as you can see from opening the inspector on this page, going to the console, and typing `data` (since it's a JavaScript variable, defined with `var = data`), or just from the mess printed here. You'll need to paste the following script into your document before the d3 script too: `<script src="//d3js.org/d3.v4.min.js"></script>` (here I'm using version 4, if you use another version, obviously that part changes).  
 
-<style>
 
-.bar {
-  fill: steelblue;
-}
-
-.bar:hover {
-  fill: brown;
-}
-
-.axis--x path {
-  display: none;
-}
-
-</style>
 Then, following Nick, I've created a `div` element to put the visualization in (it doesn't show on GitHub, but make a simple test .Rmd and you'll see it works), it's `div id="viz"></div>`. Then the JavaScript code to make a simple bar graph (from [here](https://bl.ocks.org/d3noob/bdf28027e0ce70bd132edc64f1dd7ea4)):  
 <div id = "viz"></div>
 ```{js}
@@ -487,7 +472,6 @@ svg.append("g")
 
 And there you go, you'll have a nice d3 bar graph with data you made/tidied with R.    
 
-</div>
 </details>
 
 ## Miscellaneous :pushpin:
