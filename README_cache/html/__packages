@@ -1,0 +1,15 @@
+base
+congressbr
+readr
+dplyr
+purrr
+stringr
+pander
+bindrcpp
+janitor
+ggplot2
+tibble
+cowplot
+ggrepel
+tictoc
+jsonlite
