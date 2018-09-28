@@ -116,7 +116,17 @@ my packages were still installed. Anyway.
 
 ## Tables :page\_with\_curl:
 
+### Rename new columns with `dplyr::mutate_at()`  
+Simply put the new column name inside `funs()`: 
+
+``` r
+df %>% mutate_at('original_column', funs(new_column = sum))
+
+```
+
 ### Totals columns
+
+_Update Sept 2018; the janitor package does all this better now!_ 
 
 Nice totals column, from Andrew Heiss:
 
