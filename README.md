@@ -114,6 +114,29 @@ my packages were still installed. Anyway.
 
 </details>
 
+### Installing packages when using security certificates
+
+If you're behind a corporate proxy and you have a security certificate (a `.pem` file, for example), you can try:
+
+``` r
+library(httr)
+set_config(config(cainfo = 'path/to/pem/file')
+```
+
+That should do it, but if not, try: 
+
+``` r
+Sys.setenv("CURL_CA_BUNDLE" = "path/to/pem/file")
+```
+
+or 
+
+``` r
+library(httr)
+set_config(config(ssl_verifypeer = 0L))
+```
+
+
 ## Tables :page\_with\_curl:
 
 ### Rename new columns with `dplyr::mutate_at()`  
