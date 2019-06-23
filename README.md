@@ -109,6 +109,12 @@ old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", v
     }
 ```
 
+See which ones aren't available from CRAN or didn't install for some reason:
+
+```r
+new_packages <- as.data.frame(installed.packages(), stringsAsFactors = F)$Package
+missing_packages <- old.packages[!old.packages %in% new_packages]
+```
 
 </details>
 
