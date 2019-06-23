@@ -109,8 +109,6 @@ old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", v
     }
 ```
 
-I’m not sure this is necessary anymore, the last time I updated R, all
-my packages were still installed. Anyway.
 
 </details>
 
