@@ -64,6 +64,20 @@ df <- dir() %>%
 
 That’s just beautiful code, isn’t it?
 
+### data.table wonderfulness
+
+data.table will accept command line arguments, making some I/O tasks really simple. A common use case for me is that I may have a large .csv file (10GB, let's say), but that I don't actually need or want to have all of it in memory. In other words, I want to read in a sample of the data. On a Mac, it's as easy as installing some command line tools with HomeBrew and then using these tools with `fread()`.
+
+```bash
+brew install coreutils
+```
+
+```r
+df <- fread("gshuf -n 100000 really/large/csv/file.csv")
+```
+
+Wonderful.
+
 ## Packages :package:
 
 ### Loading more than one at the same time
