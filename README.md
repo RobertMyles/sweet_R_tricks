@@ -22,17 +22,6 @@ Kasnitsky](https://ikashnitsky.github.io/):
 library(congressbr)
 data('senate_nominal_votes')
 head(senate_nominal_votes)
-#> # A tibble: 6 x 9
-#>   vote_date           bill_id bill    legislature senator_id senator_name 
-#>   <dttm>              <chr>   <chr>   <chr>       <chr>      <chr>        
-#> 1 1991-06-06 00:00:00 19615   PLC:19 49          31         Guilherme Pa
-#> 2 1991-06-06 00:00:00 19615   PLC:19 49          47         Jose Sarney  
-#> 3 1991-06-06 00:00:00 19615   PLC:19 49          82         Amazonino Me
-#> 4 1991-06-06 00:00:00 19615   PLC:19 49          33         Humberto Luc
-#> 5 1991-06-06 00:00:00 19615   PLC:19 49          79         Valmir Campe
-#> 6 1991-06-06 00:00:00 19615   PLC:19 49          84         Antonio Mariz
-#> # ... with 3 more variables: senator_vote <chr>, senator_party <chr>,
-#> #   senator_state <chr>
 save(list = ls(), file = "sen.Rda")
 save(list = ls(), file = "sen2.Rda", compress = "xz")
 
@@ -64,20 +53,6 @@ df <- dir() %>%
 
 That’s just beautiful code, isn’t it?
 
-### data.table wonderfulness
-
-data.table will accept command line arguments, making some I/O tasks really simple. A common use case for me is that I may have a large .csv file (10GB, let's say), but that I don't actually need or want to have all of it in memory. In other words, I want to read in a sample of the data. On a Mac, it's as easy as installing some command line tools with HomeBrew and then using these tools with `fread()`.
-
-```bash
-brew install coreutils
-```
-
-```r
-df <- fread("gshuf -n 100000 really/large/csv/file.csv")
-```
-
-Wonderful.
-
 ## Packages :package:
 
 ### Loading more than one at the same time
@@ -96,7 +71,7 @@ be installed first, of course\!
 
 You can of course do something similar with installing packages, for
 example `lapply(pkgs, install.packages)`, where pkgs is a character
-vector of package names.
+vector of package names. Or with `xfun::pkg_attach()`.
 
 ### Saving and re-installing old packages on a new version of R
 
@@ -123,51 +98,14 @@ old.packages <- list.files(paste0("/Library/Frameworks/R.framework/Versions/", v
     }
 ```
 
-See which ones aren't available from CRAN or didn't install for some reason:
-
-```r
-new_packages <- as.data.frame(installed.packages(), stringsAsFactors = F)$Package
-missing_packages <- old.packages[!old.packages %in% new_packages]
-```
+I’m not sure this is necessary anymore, the last time I updated R, all
+my packages were still installed. Anyway.
 
 </details>
 
-### Installing packages when using security certificates
-
-If you're behind a corporate proxy and you have a security certificate (a `.pem` file, for example), you can try:
-
-``` r
-library(httr)
-set_config(config(cainfo = 'path/to/pem/file')
-```
-
-That should do it, but if not, try: 
-
-``` r
-Sys.setenv("CURL_CA_BUNDLE" = "path/to/pem/file")
-```
-
-or 
-
-``` r
-library(httr)
-set_config(config(ssl_verifypeer = 0L))
-```
-
-
 ## Tables :page\_with\_curl:
 
-### Rename new columns with `dplyr::mutate_at()`  
-Simply put the new column name inside `funs()`: 
-
-``` r
-df %>% mutate_at('original_column', funs(new_column = sum))
-
-```
-
 ### Totals columns
-
-_Update Sept 2018; the janitor package does all this better now!_ 
 
 Nice totals column, from Andrew Heiss:
 
@@ -405,10 +343,16 @@ plot_grid(title, p, ncol = 1, rel_heights=c(0.05, 1))
 </details>
 
 ### See colours quickly
-I was trying to get a nice colour for a `geom_vline()` recently, and I was looking for a way to quickly print a colour in R. The `scales` package to the rescue! 
-```r
+
+I was trying to get a nice colour for a `geom_vline()` recently, and I
+was looking for a way to quickly print a colour in R. The `scales`
+package to the rescue\!
+
+``` r
 scales::show_col(c("#E8AE68", "#4D5061"))
 ```
+
+![](README-unnamed-chunk-9-1.png)<!-- -->
 
 ### ggplot2 :bar\_chart:
 
@@ -450,7 +394,7 @@ df %>% filter(area == "Health") %>% {
 }
 ```
 
-![](README-unnamed-chunk-9-1.png)<!-- -->
+![](README-unnamed-chunk-10-1.png)<!-- -->
 [Source](https://stackoverflow.com/questions/44007998/subset-filter-in-dplyr-chain-with-ggplot2)
 
 </details>
@@ -479,7 +423,7 @@ ggplot(df, aes(x = x, y = y)) +
   geom_text_repel(aes(label = name_poor), point.padding = 2)
 ```
 
-![](README-unnamed-chunk-10-1.png)<!-- -->
+![](README-unnamed-chunk-11-1.png)<!-- -->
 [Source](https://twitter.com/rensa_co/status/976340414016843776?s=08)
 
 </details>
@@ -560,7 +504,7 @@ ggplot(x, aes(x = timesSeq, group = 1)) +
   labs(subtitle = "The red line is f1.prof!")
 ```
 
-![](README-unnamed-chunk-11-1.png)<!-- -->
+![](README-unnamed-chunk-12-1.png)<!-- -->
 
 </details>
 
@@ -578,7 +522,7 @@ tic()
 if(any(x > 5)) print("hey!")
 #> [1] "hey!"
 toc()
-#> 0.002 sec elapsed
+#> 0.001 sec elapsed
 
 tic()
 if(any(x > 5)) {
@@ -586,7 +530,7 @@ if(any(x > 5)) {
 }
 #> [1] "hey!"
 toc()
-#> 0.019 sec elapsed
+#> 0.001 sec elapsed
 ```
 
 I’ve seen this in a few places, but the most recent I remember was from
@@ -608,12 +552,14 @@ knitr::opts_chunk$set(
 )
 ```
 
+`Cmd + option + i` gives you an R code chunk. That’s handy.
+
 ### JavaScript
 
-If you use `results = 'asis'` in the head of your code chunk, i.e.
-` ```{r results = 'asis'}`, RMarkdown will keep the result of the chunk
-‘alive’, so to speak, in the document, for you to use. A good example
-of this is with JavaScript, which you can use to make a nifty
+If you use `results = 'asis'` in the head of your code chunk,
+i.e. ` ```{r results = 'asis'} `, RMarkdown will keep the result of the
+chunk ‘alive’, so to speak, in the document, for you to use. A good
+example of this is with JavaScript, which you can use to make a nifty
 [d3](https://d3js.org/) plot. A few bloggers have noted this, although I
 think the first was a blogger named
 [Alice](https://towardsdatascience.com/getting-r-and-d3-js-to-play-nicely-in-r-markdown-270e302a52d3).
@@ -911,7 +857,7 @@ As I said, this is saved as rsupd, into `/usr/local/bin`. We then make
 it an executable with `chmod 755 /usr/local/bin/rsupd`. Then you load
 the preference list with `launchctl load -w
 /Library/LaunchAgents/UpdateRStudio.plist` (use `unload` here when you
-want to stop it). VoilÃ , fresh RStudio for thee everyday.
+want to stop it). Voilà, fresh RStudio for thee everyday.
 
 </details>
 
@@ -924,3 +870,6 @@ want to stop it). VoilÃ , fresh RStudio for thee everyday.
 ```
 
 [Source](https://community.rstudio.com/t/rstudio-hidden-gems/4974)
+
+Looking for something in code or a file in a project? Try `Cmd` + Shift
++ F. Nice.

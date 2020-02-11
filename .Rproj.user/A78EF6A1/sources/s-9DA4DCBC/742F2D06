@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1581437838193.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "85360062",
+    "id" : "742F2D06",
+    "lastKnownWriteTime" : 1581440097,
+    "last_content_update" : 1581440097365,
+    "path" : "~/Documents/Other/sweet_R_tricks/README.Rmd",
+    "project_path" : "README.Rmd",
+    "properties" : {
+        "cursorPosition" : "406,61",
+        "scrollLine" : "387"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}
