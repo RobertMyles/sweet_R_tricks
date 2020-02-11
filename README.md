@@ -871,5 +871,5 @@ want to stop it). Voilà, fresh RStudio for thee everyday.
 
 [Source](https://community.rstudio.com/t/rstudio-hidden-gems/4974)
 
-Looking for something in code or a file in a project? Try `Cmd` + Shift
-+ F. Nice.
+Looking for something in code or a file in a project? Try `Cmd + Shift + F`. 
+Nice.
