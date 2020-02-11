@@ -404,6 +404,12 @@ plot_grid(title, p, ncol = 1, rel_heights=c(0.05, 1))
 
 </details>
 
+### See colours quickly
+I was trying to get a nice colour for a `geom_vline()` recently, and I was looking for a way to quickly print a colour in R. The `scales` package to the rescue! 
+```r
+scales::show_col(c("#E8AE68", "#4D5061"))
+```
+
 ### ggplot2 :bar\_chart:
 
 You can use curly braces (`{}`) to avail of data wrangling in the middle
